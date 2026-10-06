@@ -20,7 +20,7 @@ dwekfolio/
 ├── public/                 # Aset statis bawaan Vite
 ├── src/
 │   ├── assets/             # Folder gambar/media
-│   │   └── profile.png
+│   │   └── profile.jpg
 │   │
 │   ├── components/         # Folder komponen utama
 │   │   ├── reactbits/      # Folder komponen efek animasi khusus
