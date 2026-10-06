@@ -1,7 +1,49 @@
 @import "tailwindcss";
 
+/* Tambahkan baris ini untuk mengaktifkan mode gelap manual */
+@custom-variant dark (&:where(.dark, .dark *));
+
 html {
   scroll-behavior: smooth;
   scroll-padding-top: 100px;
-  /* Memberikan jarak otomatis setiap kali halaman melakukan scroll ke ID tertentu */
+}
+
+/* Tambahkan di dalam src/index.css */
+:root {
+  --color-1: #4285F4; /* Google Blue */
+  --color-2: #34A853; /* Google Green */
+  --color-3: #FBBC05; /* Google Yellow */
+  --color-4: #EA4335; /* Google Red */
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+/* Sembunyikan scrollbar untuk Chrome, Safari, dan Opera */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+/* Sembunyikan scrollbar untuk IE, Edge, dan Firefox */
+.no-scrollbar {
+  -ms-overflow-style: none;
+  /* IE dan Edge */
+  scrollbar-width: none;
+  /* Firefox */
+}
+
+@keyframes marquee {
+  0% { transform: translateX(0%); }
+  100% { transform: translateX(-50%); }
+}
+
+.animate-marquee {
+  display: flex;
+  width: max-content;
+  animation: marquee 25s linear infinite;
+}
+
+.animate-marquee:hover {
+  animation-play-state: paused; /* Berhenti sejenak saat kursor diarahkan ke atasnya */
 }

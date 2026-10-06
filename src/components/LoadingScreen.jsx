@@ -4,45 +4,80 @@ import MagicRings from './reactbits/MagicRings';
 
 const codeSnippets = [
     "Initializing Dwiki_Portfolio_v2026...",
-    "Loading React, Vite & Tailwind CSS...",
-    "Compiling Academic & Thesis modules...",
-    "Mounting Smile-themed UI components...",
-    "System ready. Welcome!"
+    "Loading About Me, Skills & Experience...",
+    "Compiling Projects & Testimonials...",
+    "Mounting Google-style UI components...",
+    "Portfolio ready. Welcome!"
 ];
 
 export default function LoadingScreen({ onFinish }) {
+    const [step, setStep] = useState('select-theme');
+    const [selectedTheme, setSelectedTheme] = useState('light');
     const [currentLine, setCurrentLine] = useState(0);
-    const [isDone, setIsDone] = useState(false);
     const [isSplitting, setIsSplitting] = useState(false);
 
+    const handleConfirmTheme = (theme) => {
+        setSelectedTheme(theme);
+        if (theme === 'dark') {
+            document.documentElement.classList.add('dark');
+            localStorage.setItem('theme', 'dark');
+        } else {
+            document.documentElement.classList.remove('dark');
+            localStorage.setItem('theme', 'light');
+        }
+        setStep('ready-command');
+    };
+
+    const handleRunCommand = () => {
+        setStep('running-terminal');
+    };
+
     useEffect(() => {
+        if (step !== 'running-terminal') return;
+
         const timer = setInterval(() => {
             setCurrentLine((prev) => {
                 if (prev < codeSnippets.length - 1) {
                     return prev + 1;
                 } else {
                     clearInterval(timer);
-                    setIsDone(true);
-                    // Jeda setelah emote muncul, lalu mulai tirai terbelah
                     setTimeout(() => {
                         setIsSplitting(true);
-                        setTimeout(onFinish, 5000); // Waktu tirai terbuka penuh sebelum unmount
-                    }, 5000);
+                        setTimeout(onFinish, 800);
+                    }, 1000);
                     return prev;
                 }
             });
-        }, 2000); // Kecepatan pergantian teks baris
+        }, 600);
 
         return () => clearInterval(timer);
-    }, [onFinish]);
+    }, [step, onFinish]);
+
+    const glowPulseAnimation = {
+        boxShadow: selectedTheme === 'dark' ? [
+            "0 0 100px rgba(52, 168, 83, 0.4), 0 0 200px rgba(52, 168, 83, 0.2)",
+            "0 0 200px rgba(52, 168, 83, 0.7), 0 0 400px rgba(52, 168, 83, 0.35)",
+            "0 0 100px rgba(52, 168, 83, 0.4), 0 0 200px rgba(52, 168, 83, 0.2)"
+        ] : [
+            "0 0 100px rgba(66, 133, 244, 0.4), 0 0 200px rgba(66, 133, 244, 0.2)",
+            "0 0 200px rgba(66, 133, 244, 0.7), 0 0 400px rgba(66, 133, 244, 0.35)",
+            "0 0 100px rgba(66, 133, 244, 0.4), 0 0 200px rgba(66, 133, 244, 0.2)"
+        ]
+    };
+
+    const pulseTransition = {
+        duration: 3,
+        repeat: Infinity,
+        ease: "easeInOut"
+    };
 
     return (
-        <div className="fixed inset-0 z-[9999] overflow-hidden pointer-events-auto flex items-center justify-center">
+        <div className="fixed inset-0 z-[9999] overflow-hidden pointer-events-auto flex items-center justify-center font-mono">
 
-            {/* 1. Background MagicRings diposisikan penuh di latar belakang agar sangat luas dan jelas */}
+            {/* Background MagicRings */}
             <div className="absolute inset-0 z-10 opacity-60 pointer-events-none flex items-center justify-center scale-125 md:scale-150">
                 <MagicRings
-                    color="#4285F4"
+                    color={selectedTheme === 'dark' ? '#34A853' : '#508ae7'}
                     colorTwo="#34A853"
                     ringCount={8}
                     speed={1.2}
@@ -56,7 +91,7 @@ export default function LoadingScreen({ onFinish }) {
                 initial={{ x: 0 }}
                 animate={isSplitting ? { x: "-100%" } : { x: 0 }}
                 transition={{ duration: 0.8, ease: [0.76, 0, 0.24, 1] }}
-                className="absolute top-0 left-0 w-1/2 h-full bg-[#F8F9FA]/90 backdrop-blur-xs border-r border-gray-200/50 z-20"
+                className="absolute top-0 left-0 w-1/2 h-full bg-[#F8F9FA]/90 dark:bg-[#121212]/90 backdrop-blur-xs z-20 transition-colors duration-500"
             />
 
             {/* Panel Kanan Tirai */}
@@ -64,53 +99,137 @@ export default function LoadingScreen({ onFinish }) {
                 initial={{ x: 0 }}
                 animate={isSplitting ? { x: "100%" } : { x: 0 }}
                 transition={{ duration: 0.8, ease: [0.76, 0, 0.24, 1] }}
-                className="absolute top-0 right-0 w-1/2 h-full bg-[#F8F9FA]/90 backdrop-blur-xs border-l border-gray-200/50 z-20"
+                className="absolute top-0 right-0 w-1/2 h-full bg-[#F8F9FA]/90 dark:bg-[#121212]/90 backdrop-blur-xs z-20 transition-colors duration-500"
             />
 
-            {/* Konten Terminal di Tengah */}
+            {/* Konten Utama */}
             <motion.div
                 animate={isSplitting ? { opacity: 0, scale: 0.95 } : { opacity: 1, scale: 1 }}
                 transition={{ duration: 0.3 }}
-                className="relative z-30 flex flex-col items-center justify-center text-[#202124] px-4 font-mono select-none w-full max-w-lg"
+                className="relative z-30 flex flex-col items-center justify-center text-[#202124] dark:text-white px-4 select-none w-full max-w-md"
             >
-                {/* Kotak Terminal Coding */}
-                <div className="bg-white/95 backdrop-blur-md border border-gray-200 p-6 rounded-2xl shadow-2xl w-full">
-                    <div className="flex items-center gap-2 mb-4 pb-3 border-b border-gray-100">
-                        <span className="w-3 h-3 rounded-full bg-red-400 inline-block"></span>
-                        <span className="w-3 h-3 rounded-full bg-yellow-400 inline-block"></span>
-                        <span className="w-3 h-3 rounded-full bg-green-400 inline-block"></span>
-                        <span className="text-xs text-gray-500 ml-2">dwiki-portfolio-terminal ~ bash</span>
-                    </div>
-
-                    <div className="space-y-2 text-sm min-h-[120px]">
-                        {codeSnippets.slice(0, currentLine + 1).map((snippet, idx) => (
-                            <div key={idx} className="flex items-start gap-2">
-                                <span className="text-[#34A853] font-bold">&gt;</span>
-                                <span className={idx === currentLine ? "text-[#4285F4] font-semibold animate-pulse" : "text-gray-700"}>
-                                    {snippet}
-                                </span>
+                <motion.div
+                    animate={step === 'running-terminal' ? glowPulseAnimation : {}}
+                    transition={pulseTransition}
+                    className="w-full rounded-[2.2rem]"
+                >
+                    
+                    {/* TAHAP 1: PILIH VIBE */}
+                    {step === 'select-theme' && (
+                        <div className="bg-white dark:bg-[#1A1A1C] border-2 border-gray-300 dark:border-gray-600 p-8 rounded-[2rem] shadow-2xl w-full text-center transition-colors">
+                            <div className="w-12 h-12 mx-auto mb-4 rounded-full bg-blue-100 dark:bg-blue-900/60 flex items-center justify-center text-xl shadow-inner">
+                                🎨
                             </div>
-                        ))}
+                            <h3 className="text-2xl font-black mb-2 text-[#202124] dark:text-white">Pilih Vibe Portofolio</h3>
+                            <p className="text-xs font-sans font-medium text-gray-600 dark:text-gray-300 mb-6">
+                                Tentukan mode tampilan awal sebelum sistem dikompilasi sepenuhnya.
+                            </p>
 
-                        {/* Emote Senyum saat selesai */}
-                        {isDone && (
-                            <motion.div
-                                initial={{ scale: 0, opacity: 0 }}
-                                animate={{ scale: 1, opacity: 1 }}
-                                transition={{ type: "spring", stiffness: 300, damping: 20 }}
-                                className="mt-4 pt-3 border-t border-gray-100 flex items-center justify-center gap-2 text-base font-sans font-bold text-[#4285F4]"
+                            <div className="grid grid-cols-2 gap-4 mb-6">
+                                <button
+                                    onClick={() => setSelectedTheme('light')}
+                                    className={`p-4 rounded-2xl border-2 font-bold text-sm transition-all shadow-sm ${
+                                        selectedTheme === 'light' 
+                                            ? 'border-[#1A73E8] bg-[#E8F0FE] text-[#1A73E8] scale-105' 
+                                            : 'border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
+                                    }`}
+                                >
+                                    ☀ Light Mode
+                                </button>
+                                <button
+                                    onClick={() => setSelectedTheme('dark')}
+                                    className={`p-4 rounded-2xl border-2 font-bold text-sm transition-all shadow-sm ${
+                                        selectedTheme === 'dark' 
+                                            ? 'border-[#34A853] bg-[#E6F4EA] dark:bg-emerald-950/80 text-[#137333] dark:text-[#81C995] scale-105' 
+                                            : 'border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
+                                    }`}
+                                >
+                                    🌙 Dark Mode
+                                </button>
+                            </div>
+
+                            <button
+                                onClick={() => handleConfirmTheme(selectedTheme)}
+                                className="w-full py-4 bg-[#1A73E8] hover:bg-blue-700 text-white font-extrabold rounded-2xl shadow-lg transition-all text-sm tracking-wide"
                             >
-                                <span>✨ Selamat Datang!</span>
-                                <span className="text-2xl animate-bounce">😊</span>
-                            </motion.div>
-                        )}
-                    </div>
+                                Yes, Lanjutkan &rarr;
+                            </button>
+                        </div>
+                    )}
 
-                    <div className="mt-6 flex justify-between items-center text-xs text-gray-400 pt-3 border-t border-gray-100">
-                        <span>{isDone ? "Status: Ready!" : "Status: Compiling"}</span>
-                        <span>{isDone ? "🚀" : "⚙️"}</span>
-                    </div>
-                </div>
+                    {/* TAHAP 2: SUDO APT DWEKFOLIO */}
+                    {step === 'ready-command' && (
+                        <div className="bg-white/95 dark:bg-[#1A1A1C]/95 backdrop-blur-md border-2 border-gray-300 dark:border-gray-600 p-8 rounded-[2rem] shadow-2xl w-full transition-colors">
+                            <div className="flex items-center gap-2 mb-4 pb-3 border-b border-gray-200 dark:border-gray-700">
+                                <span className="w-3 h-3 rounded-full bg-red-500 inline-block"></span>
+                                <span className="w-3 h-3 rounded-full bg-yellow-500 inline-block"></span>
+                                <span className="w-3 h-3 rounded-full bg-green-500 inline-block"></span>
+                                <span className="text-xs text-gray-500 dark:text-gray-400 ml-2 font-bold">system-setup ~ bash</span>
+                            </div>
+
+                            <p className="text-xs font-sans text-gray-600 dark:text-gray-300 mb-3 font-medium">
+                                Jalankan perintah sistem ini untuk menginstal modul portfolio:
+                            </p>
+
+                            <div className="bg-gray-100 dark:bg-black/80 p-4 rounded-xl border border-gray-300 dark:border-gray-700 font-mono text-sm mb-6 flex items-center justify-between shadow-inner">
+                                <span className="text-[#34A853] font-extrabold">wick apt install d'wick.port</span>
+                                <span className="animate-pulse text-xs bg-emerald-200 dark:bg-emerald-900 text-emerald-800 dark:text-emerald-300 px-2 py-0.5 rounded font-bold">ready</span>
+                            </div>
+
+                            <button
+                                onClick={handleRunCommand}
+                                className="w-full py-4 bg-[#34A853] hover:bg-green-700 text-white font-extrabold rounded-2xl shadow-lg transition-all text-sm flex items-center justify-center gap-2 tracking-wide"
+                            >
+                                <span>▶ RUN</span>
+                            </button>
+                        </div>
+                    )}
+
+                    {/* TAHAP 3: TERMINAL INSTALASI BERJALAN */}
+                    {step === 'running-terminal' && (
+                        <div className="bg-white/95 dark:bg-[#1A1A1C]/95 backdrop-blur-md border-2 border-gray-300 dark:border-gray-600 p-6 rounded-2xl w-full shadow-2xl transition-colors">
+                            <div className="flex items-center gap-2 mb-4 pb-3 border-b border-gray-200 dark:border-gray-700">
+                                <span className="w-3 h-3 rounded-full bg-red-500 inline-block"></span>
+                                <span className="w-3 h-3 rounded-full bg-yellow-500 inline-block"></span>
+                                <span className="w-3 h-3 rounded-full bg-green-500 inline-block"></span>
+                                <span className="text-xs text-gray-500 dark:text-gray-400 ml-2 font-bold">dwiki-portfolio-terminal ~ executing</span>
+                            </div>
+
+                            <div className="space-y-2 text-sm min-h-[140px]">
+                                <div className="text-gray-500 dark:text-gray-400 text-xs mb-3 font-mono">
+                                    $ wick apt install d'wick.port -y
+                                </div>
+
+                                {codeSnippets.slice(0, currentLine + 1).map((snippet, idx) => (
+                                    <div key={idx} className="flex items-start gap-2">
+                                        <span className="text-[#34A853] font-bold">&gt;</span>
+                                        <span className={idx === currentLine ? "text-[#34A853] font-bold animate-pulse" : "text-gray-700 dark:text-gray-200 font-medium"}>
+                                            {snippet}
+                                        </span>
+                                    </div>
+                                ))}
+
+                                {currentLine === codeSnippets.length - 1 && (
+                                    <motion.div
+                                        initial={{ scale: 0, opacity: 0 }}
+                                        animate={{ scale: 1, opacity: 1 }}
+                                        transition={{ type: "spring", stiffness: 300, damping: 20 }}
+                                        className="mt-4 pt-3 border-t border-gray-200 dark:border-gray-700 flex items-center justify-center gap-2 text-base font-bold text-[#34A853]"
+                                    >
+                                        <span>Selamat Datang!</span>
+                                        <span className="text-2xl animate-bounce">😊</span>
+                                    </motion.div>
+                                )}
+                            </div>
+
+                            <div className="mt-6 flex justify-between items-center text-xs text-gray-500 dark:text-gray-400 pt-3 border-t border-gray-200 dark:border-gray-700 font-bold">
+                                <span>{currentLine === codeSnippets.length - 1 ? "Status: Ready!" : "Status: Compiling"}</span>
+                                <span>{currentLine === codeSnippets.length - 1 ? "🚀" : "⚙️"}</span>
+                            </div>
+                        </div>
+                    )}
+
+                </motion.div>
             </motion.div>
         </div>
     );

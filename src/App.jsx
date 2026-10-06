@@ -1,53 +1,79 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Navbar from './components/navbar';
-import Hero from './components/hero';
-import SkillsAnalytics from './components/skillsanalytics';
-import AcademicSection from './components/academicsection';
-import GrowthJourney from './components/growthjourney';
-import ProjectsSection from './components/projectssection';
-import ContactSection from './components/contactsection';
+import Home from './pages/Home';
+import Blog from './pages/Blog';
+import Contact from './pages/Contact';
+import TerminalShell from './pages/TerminalShell';
+import ProjectsPage from './pages/Projects';
+import ProjectDetail from './pages/ProjectDetail';
 import ShapeGrid from './components/reactbits/ShapeGrid';
 import LoadingScreen from './components/LoadingScreen';
+import FloatingTerminal from './components/FloatingTerminal';
 
 export default function App() {
   const [isLoading, setIsLoading] = useState(true);
+  const [isDarkMode, setIsDarkMode] = useState(false);
+
+  useEffect(() => {
+    const checkDarkMode = () => {
+      const isDark = document.documentElement.classList.contains('dark');
+      setIsDarkMode(isDark);
+    };
+
+    checkDarkMode();
+    const observer = new MutationObserver(checkDarkMode);
+    observer.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
+
+    return () => observer.disconnect();
+  }, []);
 
   return (
-    <>
-      {/* Tampilkan Loading Screen saat pertama kali dimuat */}
+    <Router>
       {isLoading && <LoadingScreen onFinish={() => setIsLoading(false)} />}
 
-      {/* Konten Utama Portofolio */}
-      <div className="relative min-h-screen bg-[#F8F9FA] text-[#202124] font-sans overflow-hidden">
+      <div className="relative min-h-screen bg-[#F8F9FA] dark:bg-[#121212] text-[#202124] dark:text-white font-sans overflow-hidden transition-colors duration-300 flex flex-col justify-between">
 
-        {/* Background Utama ShapeGrid */}
-        <div className="absolute inset-0 pointer-events-none z-0 opacity-70">
+        {/* Background Shap qeGrid konsisten di semua halaman */}
+        <div className="absolute inset-0 pointer-events-none z-0 opacity-70 dark:opacity-35 transition-colors duration-500">
           <ShapeGrid
-            squareSize={60}
-            speed={0.6}
+            squareSize={100}
+            speed={0.2}
             direction="right"
-            borderColor="#E2E8F0"
-            hoverFillColor="#E8F0FE"
+            borderColor={isDarkMode ? "#34A853" : "#3683e9"}
+            hoverFillColor={isDarkMode ? "#0D652D33" : "#E8F0FE"}
             shape="square"
             hoverTrailAmount={4}
           />
         </div>
 
-        {/* Seluruh Konten Website */}
-        <div className="relative z-10">
+        {/* Konten Utama & Navigasi */}
+        <div className="relative z-10 flex flex-col min-h-screen">
           <Navbar />
-          <Hero />
-          <SkillsAnalytics />
-          <AcademicSection />
-          <GrowthJourney />
-          <ProjectsSection />
-          <ContactSection />
-          <footer className="py-8 text-center text-sm text-gray-500 border-t border-gray-200 mt-20 bg-white/60 backdrop-blur-xs">
-            © 2026 Dwiki Kurniawan, S.Kom. • Built with React, Tailwind CSS & Google Style
+          
+          {/* Bagian ini yang mengatur agar halaman berganti secara bersih */}
+          <div className="flex-grow pt-24">
+            <Routes>
+              <Route path="/" element={<Home />} />
+              <Route path="/projects/:id" element={<ProjectDetail />} />
+              <Route path="/projects" element={<ProjectsPage />} />
+              <Route path="/blog" element={<Blog />} />
+              <Route path="/contact" element={<Contact />} />
+              <Route path="/terminal" element={<TerminalShell />} />
+            </Routes>
+          </div>
+          
+          {/* Footer */}
+          <footer className="relative mt-20 overflow-hidden bg-white/60 dark:bg-[#1A1A1A]/60 backdrop-blur-xs transition-colors duration-300">
+            <div className="absolute top-0 left-0 w-full h-[2px] bg-gradient-to-r from-transparent via-[#34A853] to-transparent animate-pulse"></div>
+            
+            <div className="py-8 text-center text-sm text-gray-500 dark:text-gray-400">
+              © 2026 Dwiki Kurniawan • Built with React, Tailwind CSS & Google Style
+            </div>
           </footer>
         </div>
-
+<FloatingTerminal />
       </div>
-    </>
+    </Router>
   );
 }

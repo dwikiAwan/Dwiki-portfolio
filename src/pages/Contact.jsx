@@ -1,0 +1,418 @@
+import { useState, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { portfolioData } from '../data/portfoliodata';
+import { Mail, Copy, Check, Send, Flame, ThumbsUp, Zap, Code, Bot, Rocket, Shield, Terminal, ChevronLeft, ChevronRight, FileText, Download } from 'lucide-react';
+
+export default function Contact() {
+    const [copied, setCopied] = useState(false);
+    
+    // State Buku Tamu yang disinkronkan dengan localStorage untuk Live Feed Home
+    const [messages, setMessages] = useState(() => {
+        const saved = localStorage.getItem('portfolio_guestbook');
+        if (saved) {
+            try { return JSON.parse(saved); } catch { return []; }
+        }
+        return [
+            { 
+                id: 1, 
+                name: "Tim Rekrutmen", 
+                message: "Keren banget portofolionya, interaktif dan rapi!", 
+                time: "Baru saja",
+                avatar: "rocket",
+                reactions: { fire: 5, like: 12, lightning: 3 }
+            }
+        ];
+    });
+
+    const [name, setName] = useState('');
+    const [text, setText] = useState('');
+    const [selectedAvatar, setSelectedAvatar] = useState('code');
+    const [errorMsg, setErrorMsg] = useState('');
+
+    // State untuk Pagination (Limit pesan per halaman)
+    const [currentPage, setCurrentPage] = useState(1);
+    const itemsPerPage = 4; // Jumlah pesan maksimal per halaman
+
+    // Hitung data untuk halaman aktif
+    const indexOfLastItem = currentPage * itemsPerPage;
+    const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+    const currentMessages = messages.slice(indexOfFirstItem, indexOfLastItem);
+    const totalPages = Math.ceil(messages.length / itemsPerPage);
+
+    // Daftar pilihan ikon/avatar
+    const avatarList = [
+        { id: 'code', label: 'Coder', icon: Code },
+        { id: 'bot', label: 'Bot', icon: Bot },
+        { id: 'rocket', label: 'Rocket', icon: Rocket },
+        { id: 'shield', label: 'Shield', icon: Shield },
+        { id: 'terminal', label: 'Terminal', icon: Terminal },
+    ];
+
+    const renderAvatarIcon = (avatarId, className = "w-4 h-4") => {
+        switch (avatarId) {
+            case 'bot': return <Bot className={className} />;
+            case 'rocket': return <Rocket className={className} />;
+            case 'shield': return <Shield className={className} />;
+            case 'terminal': return <Terminal className={className} />;
+            default: return <Code className={className} />;
+        }
+    };
+
+    useEffect(() => {
+        localStorage.setItem('portfolio_guestbook', JSON.stringify(messages));
+    }, [messages]);
+
+    const sanitizeInput = (input) => {
+        return input
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/["']/g, "")
+            .replace(/[/\\]/g, "")
+            .trim();
+    };
+
+    const handleCopyEmail = () => {
+        navigator.clipboard.writeText(portfolioData.email);
+        setCopied(true);
+        setTimeout(() => setCopied(false), 2500);
+    };
+
+    const handleGuestbookSubmit = (e) => {
+        e.preventDefault();
+        
+        const cleanName = sanitizeInput(name);
+        const cleanText = sanitizeInput(text);
+
+        if (!cleanName || !cleanText) {
+            setErrorMsg('Nama dan pesan tidak boleh mengandung karakter terlarang atau kosong!');
+            return;
+        }
+
+        if (cleanName.length > 30 || cleanText.length > 250) {
+            setErrorMsg('Nama maksimal 30 karakter dan pesan maksimal 250 karakter.');
+            return;
+        }
+
+        setErrorMsg('');
+        const newMessage = {
+            id: Date.now(),
+            name: cleanName,
+            message: cleanText,
+            time: "Baru saja",
+            avatar: selectedAvatar,
+            reactions: { fire: 0, like: 0, lightning: 0 }
+        };
+
+        setMessages([newMessage, ...messages]);
+        setName('');
+        setText('');
+        setSelectedAvatar('code');
+        setCurrentPage(1);
+    };
+
+    const handleReaction = (id, type) => {
+        setMessages(messages.map(msg => {
+            if (msg.id === id) {
+                return {
+                    ...msg,
+                    reactions: {
+                        ...msg.reactions,
+                        [type]: msg.reactions[type] + 1
+                    }
+                };
+            }
+            return msg;
+        }));
+    };
+
+    return (
+        <div className="py-12 px-6 max-w-4xl mx-auto space-y-12">
+            
+            {/* 1. CARD SOSIAL MEDIA: Border Kuning Energik */}
+            <div className="bg-white/90 dark:bg-[#1E1E20]/90 backdrop-blur-xl rounded-[2rem] p-6 border-2 border-[#FBBC05]/60 shadow-md text-center transition-colors duration-300">
+                <h3 className="text-xs font-bold uppercase tracking-wider text-gray-400 mb-4">Social Connect</h3>
+                <div className="flex flex-wrap justify-center gap-4">
+                    <a 
+                        href="https://github.com" 
+                        target="_blank" 
+                        rel="noreferrer" 
+                        className="flex items-center gap-2 px-5 py-3 rounded-2xl bg-gray-50/80 dark:bg-black/30 hover:bg-gray-100 dark:hover:bg-black/50 text-[#202124] dark:text-white font-semibold text-sm transition-all border border-gray-200 dark:border-gray-800"
+                    >
+                        <svg className="w-5 h-5 fill-current" viewBox="0 0 24 24">
+                            <path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/>
+                        </svg>
+                        <span>GitHub</span>
+                    </a>
+                    <a 
+                        href="https://linkedin.com" 
+                        target="_blank" 
+                        rel="noreferrer" 
+                        className="flex items-center gap-2 px-5 py-3 rounded-2xl bg-[#0A66C2]/10 hover:bg-[#0A66C2]/20 text-[#0A66C2] dark:text-[#70B5F9] font-semibold text-sm transition-all border border-gray-200 dark:border-gray-800"
+                    >
+                        <svg className="w-5 h-5 fill-current" viewBox="0 0 24 24">
+                            <path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/>
+                        </svg>
+                        <span>LinkedIn</span>
+                    </a>
+                    <a 
+                        href="https://instagram.com" 
+                        target="_blank" 
+                        rel="noreferrer" 
+                        className="flex items-center gap-2 px-5 py-3 rounded-2xl bg-pink-500/10 hover:bg-pink-500/20 text-pink-600 dark:text-pink-400 font-semibold text-sm transition-all border border-gray-200 dark:border-gray-800"
+                    >
+                        <svg className="w-5 h-5 fill-current" viewBox="0 0 24 24">
+                            <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/>
+                        </svg>
+                        <span>Instagram</span>
+                    </a>
+                </div>
+            </div>
+
+            {/* 2. BAGIAN CONTACT UTAMA: Border Kuning Energik */}
+            <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5 }}
+                className="bg-white/90 dark:bg-[#1E1E20]/90 backdrop-blur-xl rounded-[2.5rem] p-8 md:p-14 text-center border-2 border-[#FBBC05]/60 shadow-md transition-colors duration-300"
+            >
+                <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600 dark:text-emerald-400 text-xs font-bold uppercase tracking-wider mb-6 border border-emerald-200 dark:border-emerald-800">
+                    <span className="relative flex h-2 w-2">
+                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                        <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                    </span>
+                    Ready to Build Cool Stuff 🚀
+                </div>
+
+                <h1 className="text-3xl md:text-5xl font-extrabold text-[#202124] dark:text-white tracking-tight mb-4">
+                    Let's Make Things Happen. 🤝
+                </h1>
+                
+                <p className="text-[#5F6368] dark:text-[#9AA0A6] mt-2 max-w-lg mx-auto text-base md:text-lg leading-relaxed mb-10">
+                    Lagi cari tim untuk membangun web, mobile, cloud, sampai jaringan? Hit me up, mari ngobrol santai dan build proyek bareng!
+                </p>
+
+                <div className="flex flex-col sm:flex-row justify-center items-center gap-4 mb-4">
+                    <a
+                        href={`mailto:${portfolioData.email}`}
+                        className="w-full sm:w-auto bg-[#1A73E8] hover:bg-blue-600 text-white font-semibold px-8 py-4 rounded-2xl shadow-md transition-all text-sm flex items-center justify-center gap-2 group"
+                    >
+                        <Mail className="w-4 h-4 group-hover:rotate-12 transition-transform" />
+                        <span>Send Email</span>
+                    </a>
+                    
+                    <button
+                        onClick={handleCopyEmail}
+                        className="w-full sm:w-auto bg-gray-100/80 dark:bg-gray-800/80 hover:bg-gray-200 dark:hover:bg-gray-700 text-[#202124] dark:text-white font-semibold px-8 py-4 rounded-2xl transition-all text-sm border border-gray-200 dark:border-gray-700 flex items-center justify-center gap-2"
+                    >
+                        {copied ? <Check className="w-4 h-4 text-emerald-500" /> : <Copy className="w-4 h-4" />}
+                        {copied ? 'Email Copied to Clipboard!' : 'Copy Email'}
+                    </button>
+
+                    {/* Tombol Lihat/Download CV di Contact */}
+                    <a
+                        href="/cv-dwiki-kurniawan.pdf"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="w-full sm:w-auto bg-gray-100/80 dark:bg-gray-800/80 hover:bg-gray-200 dark:hover:bg-gray-700 text-[#202124] dark:text-white font-semibold px-8 py-4 rounded-2xl transition-all text-sm border border-gray-200 dark:border-gray-700 flex items-center justify-center gap-2"
+                    >
+                        <FileText className="w-4 h-4 text-[#FBBC05]" />
+                        <span>View / Download CV</span>
+                    </a>
+                </div>
+            </motion.div>
+
+            {/* 3. BUKU TAMU INTERAKTIF: Border Kuning Energik & Pagination */}
+            <div className="bg-white/90 dark:bg-[#1E1E20]/90 backdrop-blur-xl rounded-[2.5rem] p-8 md:p-12 border-2 border-[#FBBC05]/60 shadow-md transition-colors duration-300">
+                <h2 className="text-2xl font-black mb-2 text-[#202124] dark:text-white flex items-center gap-2">
+                    <span>📖</span> Guest Chat
+                </h2>
+                <p className="text-sm text-gray-600 dark:text-gray-400 mb-6">
+                    Pilih ikon kerenmu, tinggalkan pesan, dan berinteraksi di dinding pengunjung!
+                </p>
+
+                {errorMsg && (
+                    <div className="mb-4 p-3 bg-red-50 dark:bg-red-950/50 border border-red-200 dark:border-red-800 text-red-600 dark:text-red-400 text-xs rounded-xl font-medium">
+                        ⚠️ {errorMsg}
+                    </div>
+                )}
+
+                <form onSubmit={handleGuestbookSubmit} className="space-y-4 mb-10">
+                    <div>
+                        <label className="block text-xs font-bold uppercase tracking-wider text-gray-500 mb-2">Pilih Ikon Profilmu</label>
+                        <div className="flex flex-wrap gap-3">
+                            {avatarList.map((item) => {
+                                const IconComponent = item.icon;
+                                const isSelected = selectedAvatar === item.id;
+                                return (
+                                    <button
+                                        type="button"
+                                        key={item.id}
+                                        onClick={() => setSelectedAvatar(item.id)}
+                                        className={`flex items-center gap-2 px-4 py-2.5 rounded-xl border text-xs font-semibold transition-all ${
+                                            isSelected 
+                                                ? 'bg-[#1A73E8] text-white border-[#1A73E8] shadow-md scale-105' 
+                                                : 'bg-gray-50/80 dark:bg-black/30 text-gray-600 dark:text-gray-300 border-gray-200 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-800'
+                                        }`}
+                                    >
+                                        <IconComponent className="w-4 h-4" />
+                                        <span>{item.label}</span>
+                                    </button>
+                                );
+                            })}
+                        </div>
+                    </div>
+
+                    <div>
+                        <label className="block text-xs font-bold uppercase tracking-wider text-gray-500 mb-1.5">Nama / Panggilan</label>
+                        <input 
+                            type="text" 
+                            value={name} 
+                            onChange={(e) => setName(e.target.value)} 
+                            placeholder="cth: Teman Koding"
+                            maxLength={30}
+                            className="w-full px-4 py-3 rounded-xl border border-gray-300 dark:border-gray-700 bg-gray-50/80 dark:bg-black/40 text-sm focus:outline-none focus:border-[#1A73E8]"
+                            required
+                        />
+                    </div>
+                    <div>
+                        <label className="block text-xs font-bold uppercase tracking-wider text-gray-500 mb-1.5">Pesan Singkat</label>
+                        <textarea 
+                            value={text} 
+                            onChange={(e) => setText(e.target.value)} 
+                            placeholder="Ketik pesan atau sapaan di sini..."
+                            rows="3"
+                            maxLength={250}
+                            className="w-full px-4 py-3 rounded-xl border border-gray-300 dark:border-gray-700 bg-gray-50/80 dark:bg-black/40 text-sm focus:outline-none focus:border-[#1A73E8]"
+                            required
+                        ></textarea>
+                    </div>
+                    <button type="submit" className="px-6 py-3 bg-[#34A853] hover:bg-emerald-600 text-white font-bold rounded-xl text-sm transition-all shadow-md flex items-center gap-2">
+                        <Send className="w-4 h-4" /> Kirim Pesan
+                    </button>
+                </form>
+
+                {/* LIVE TICKER / RUNNING TEXT STREAMING */}
+                <div className="mb-8 p-4 bg-gray-50/80 dark:bg-black/40 rounded-2xl border border-gray-200 dark:border-gray-800 overflow-hidden relative">
+                    <div className="flex items-center gap-2 mb-3">
+                        <span className="relative flex h-2 w-2">
+                            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+                            <span className="relative inline-flex rounded-full h-2 w-2 bg-red-500"></span>
+                        </span>
+                        <span className="text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400">Live Visitor Stream</span>
+                    </div>
+
+                    <div className="overflow-hidden whitespace-nowrap w-full relative">
+                        <div className="animate-marquee flex items-center gap-4">
+                            {[...messages, ...messages].map((m, index) => (
+                                <div 
+                                    key={`${m.id}-${index}`} 
+                                    className="min-w-[260px] max-w-[260px] bg-white/90 dark:bg-[#1E1E20]/90 p-3 rounded-xl border border-gray-200 dark:border-gray-700 shrink-0 shadow-xs flex items-start gap-3"
+                                >
+                                    <div className="p-2 rounded-lg bg-blue-50 dark:bg-blue-950/40 text-[#1A73E8] shrink-0">
+                                        {renderAvatarIcon(m.avatar, "w-4 h-4")}
+                                    </div>
+                                    <div className="overflow-hidden">
+                                        <p className="text-xs font-bold text-[#1A73E8] truncate">@{m.name}</p>
+                                        <p className="text-xs text-gray-600 dark:text-gray-300 truncate mt-0.5">{m.message}</p>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                </div>
+
+                {/* DAFTAR KOMENTAR LENGKAP DENGAN LIMIT & PAGINATION */}
+                <div className="space-y-4">
+                    <div className="flex justify-between items-center mb-3">
+                        <h3 className="text-xs font-bold uppercase tracking-wider text-gray-400">
+                            Semua Pesan Masuk ({messages.length})
+                        </h3>
+                        <span className="text-xs text-gray-400 font-mono">
+                            Halaman {currentPage} dari {totalPages || 1}
+                        </span>
+                    </div>
+
+                    <AnimatePresence mode="wait">
+                        {currentMessages.map((msg) => (
+                            <motion.div 
+                                initial={{ opacity: 0, y: 10 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                exit={{ opacity: 0, y: -10 }}
+                                key={msg.id} 
+                                className="p-4 bg-gray-50/80 dark:bg-black/30 border border-gray-200 dark:border-gray-800 rounded-2xl space-y-2"
+                            >
+                                <div className="flex justify-between items-center">
+                                    <span className="font-bold text-sm text-[#202124] dark:text-white flex items-center gap-2.5">
+                                        <span className="p-1.5 rounded-lg bg-blue-50 dark:bg-blue-950/40 text-[#1A73E8]">
+                                            {renderAvatarIcon(msg.avatar, "w-4 h-4")}
+                                        </span>
+                                        {msg.name}
+                                    </span>
+                                    <span className="text-xs text-gray-400 font-mono">{msg.time}</span>
+                                </div>
+                                <p className="text-sm text-gray-600 dark:text-gray-300 pl-9">{msg.message}</p>
+
+                                <div className="flex items-center gap-3 pt-2 pl-9">
+                                    <button 
+                                        onClick={() => handleReaction(msg.id, 'fire')}
+                                        className="flex items-center gap-1 px-3 py-1 rounded-lg bg-orange-500/10 hover:bg-orange-500/20 text-orange-600 dark:text-orange-400 text-xs font-semibold transition-colors"
+                                    >
+                                        <Flame className="w-3.5 h-3.5" /> <span>{msg.reactions.fire}</span>
+                                    </button>
+                                    <button 
+                                        onClick={() => handleReaction(msg.id, 'like')}
+                                        className="flex items-center gap-1 px-3 py-1 rounded-lg bg-blue-500/10 hover:bg-blue-500/20 text-blue-600 dark:text-blue-400 text-xs font-semibold transition-colors"
+                                    >
+                                        <ThumbsUp className="w-3.5 h-3.5" /> <span>{msg.reactions.like}</span>
+                                    </button>
+                                    <button 
+                                        onClick={() => handleReaction(msg.id, 'lightning')}
+                                        className="flex items-center gap-1 px-3 py-1 rounded-lg bg-yellow-500/10 hover:bg-yellow-500/20 text-yellow-600 dark:text-yellow-400 text-xs font-semibold transition-colors"
+                                    >
+                                        <Zap className="w-3.5 h-3.5" /> <span>{msg.reactions.lightning}</span>
+                                    </button>
+                                </div>
+                            </motion.div>
+                        ))}
+                    </AnimatePresence>
+
+                    {/* Navigasi Nomor Halaman (Pagination Controls) */}
+                    {totalPages > 1 && (
+                        <div className="flex justify-center items-center gap-2 pt-6">
+                            <button
+                                onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                                disabled={currentPage === 1}
+                                className="p-2 rounded-xl border border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-black/30 disabled:opacity-40 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+                            >
+                                <ChevronLeft className="w-4 h-4" />
+                            </button>
+
+                            {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                                <button
+                                    key={page}
+                                    onClick={() => setCurrentPage(page)}
+                                    className={`px-4 py-2 rounded-xl text-xs font-bold transition-all ${
+                                        currentPage === page
+                                            ? 'bg-[#1A73E8] text-white shadow-md'
+                                            : 'bg-gray-50 dark:bg-black/30 text-gray-600 dark:text-gray-300 border border-gray-200 dark:border-gray-800 hover:bg-gray-100 dark:hover:bg-gray-800'
+                                    }`}
+                                >
+                                    {page}
+                                </button>
+                            ))}
+
+                            <button
+                                onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+                                disabled={currentPage === totalPages}
+                                className="p-2 rounded-xl border border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-black/30 disabled:opacity-40 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+                            >
+                                <ChevronRight className="w-4 h-4" />
+                            </button>
+                        </div>
+                    )}
+                </div>
+            </div>
+
+        </div>
+    );
+}
