@@ -96,7 +96,7 @@ export default function ProjectDetail() {
 
             {/* Tombol Aksi Tautan Eksternal */}
             <div className="flex flex-wrap items-center gap-4">
-                {project.link && (
+                {project.liveUrl && (
                     <a 
                         href={project.link} 
                         target="_blank" 
@@ -107,7 +107,7 @@ export default function ProjectDetail() {
                         <span>Live Demo</span>
                     </a>
                 )}
-                {project.github && (
+                {project.githubUrl && (
                     <a 
                         href={project.github} 
                         target="_blank" 

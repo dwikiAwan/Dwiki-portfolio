@@ -11,42 +11,7 @@ export default function Growth() {
     const [activeTab, setActiveTab] = useState('skills'); // 'skills', 'academic', atau 'journey'
 
     // Data komprehensif Skills Matrix
-    const skillCategories = [
-        {
-            category: "Web Development",
-            accentColor: "from-[#4285F4] to-[#1A73E8]",
-            dotColor: "bg-[#4285F4]",
-            textColor: "text-[#4285F4] dark:text-[#8AB4F8]",
-            skills: [
-                { name: "React & Vite", level: 90, icon: "⚡" },
-                { name: "Tailwind CSS v4", level: 88, icon: "🎨" },
-                { name: "Laravel", level: 70, icon: "💻" },
-                { name: "JavaScript / ES6+", level: 85, icon: "💻" }
-            ]
-        },
-        {
-            category: "Android Development",
-            accentColor: "from-[#34A853] to-[#0D652D]",
-            dotColor: "bg-[#34A853]",
-            textColor: "text-[#137333] dark:text-[#81C995]",
-            skills: [
-                { name: "Kotlin / Java", level: 82, icon: "🤖" },
-                { name: "Android Studio", level: 80, icon: "📱" },
-                { name: "Mobile UI Design", level: 78, icon: "✨" }
-            ]
-        },
-        {
-            category: "Cloud & Network Engineering",
-            accentColor: "from-[#FBBC05] to-[#EA4335]",
-            dotColor: "bg-[#FBBC05]",
-            textColor: "text-[#B06000] dark:text-[#FDE293]",
-            skills: [
-                { name: "Google Cloud Platform (GCP)", level: 75, icon: "☁️" },
-                { name: "Cisco Routing & Switching", level: 85, icon: "🌐" },
-                { name: "MikroTik Administration", level: 82, icon: "🔌" }
-            ]
-        }
-    ];
+    const skillCategories = portfolioData.skillCategories;
 
     return (
         <section id="growth" className="pt-6 pb-24 px-6 max-w-6xl mx-auto scroll-mt-28 transition-colors duration-300">

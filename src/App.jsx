@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Navbar from './components/navbar';
 import Home from './pages/Home';
@@ -14,6 +14,9 @@ import FloatingTerminal from './components/FloatingTerminal';
 export default function App() {
   const [isLoading, setIsLoading] = useState(true);
   const [isDarkMode, setIsDarkMode] = useState(false);
+  const handleFinish = useCallback(() => setIsLoading(false), []);
+  // Grid animasi penuh-halaman dimatikan di mobile & saat reduce-motion aktif
+  const showGrid = true;
 
   useEffect(() => {
     const checkDarkMode = () => {
@@ -30,13 +33,13 @@ export default function App() {
 
   return (
     <Router>
-      {isLoading && <LoadingScreen onFinish={() => setIsLoading(false)} />}
+      {isLoading && <LoadingScreen onFinish={handleFinish} />}
 
-      <div className="relative min-h-screen bg-[#F8F9FA] dark:bg-[#121212] text-[#202124] dark:text-white font-sans overflow-hidden transition-colors duration-300 flex flex-col justify-between">
+      <div className="relative min-h-screen bg-[#F8F9FA] dark:bg-[#121212] text-[#202124] dark:text-white font-sans overflow-x-clip transition-colors duration-300 flex flex-col justify-between">
 
-        {/* Background Shap qeGrid konsisten di semua halaman */}
+        {/* Background ShapeGrid konsisten di semua halaman */}
         <div className="absolute inset-0 pointer-events-none z-0 opacity-70 dark:opacity-35 transition-colors duration-500">
-          <ShapeGrid
+          {showGrid && <ShapeGrid
             squareSize={100}
             speed={0.2}
             direction="right"
@@ -44,7 +47,7 @@ export default function App() {
             hoverFillColor={isDarkMode ? "#0D652D33" : "#E8F0FE"}
             shape="square"
             hoverTrailAmount={4}
-          />
+          />}
         </div>
 
         {/* Konten Utama & Navigasi */}
@@ -72,7 +75,7 @@ export default function App() {
             </div>
           </footer>
         </div>
-<FloatingTerminal />
+  <FloatingTerminal />
       </div>
     </Router>
   );

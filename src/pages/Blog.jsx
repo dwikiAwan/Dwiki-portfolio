@@ -142,7 +142,7 @@ export default function Blog() {
                                         <div className="h-48 overflow-hidden bg-gray-100 dark:bg-gray-800 relative cursor-pointer" onClick={() => setSelectedImage(item)}>
                                             <img 
                                                 src={item.image} 
-                                                alt={item.title} 
+                                                alt={item.title} loading="lazy" 
                                                 className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                                             />
                                             <div className="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">

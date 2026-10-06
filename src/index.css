@@ -47,3 +47,9 @@ html {
 .animate-marquee:hover {
   animation-play-state: paused; /* Berhenti sejenak saat kursor diarahkan ke atasnya */
 }
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  .animate-marquee, .animate-border-run, .animate-ping, .animate-pulse, .animate-bounce {
+    animation: none !important;
+  }
+}

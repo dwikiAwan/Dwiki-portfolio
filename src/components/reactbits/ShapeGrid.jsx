@@ -266,6 +266,12 @@ const ShapeGrid = ({
     canvas.addEventListener('mousemove', handleMouseMove);
     canvas.addEventListener('mouseleave', handleMouseLeave);
 
+    const handleTouch = (e) => {
+  const t = e.touches[0];
+  if (t) handleMouseMove({ clientX: t.clientX, clientY: t.clientY });
+};
+canvas.addEventListener('touchmove', handleTouch, { passive: true });
+
     let isVisible = false;
     let isPageVisible = !document.hidden;
 

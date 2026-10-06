@@ -4,49 +4,80 @@ export const portfolioData = {
     tagline: "Membangun solusi digital yang efisien, terstruktur, dan berorientasi pada data.",
     about: "Lulusan S1 Teknik Informatika dengan ketertarikan mendalam pada pengembangan perangkat lunak modern, arsitektur web, dan sistem berbasis teknologi Google.",
     email: "dwikikurniawan0002@gmail.com",
-    
-    // 1. Tech Stack dengan Tingkat Penguasaan (Proficiency) ala Google Analytics Style
-    skills: [
-        { name: "React.js / Next.js", level: 90, category: "Frontend" },
-        { name: "JavaScript / TypeScript", level: 85, category: "Frontend" },
-        { name: "Tailwind CSS / UI", level: 92, category: "Frontend" },
-        { name: "Node.js / Express", level: 80, category: "Backend" },
-        { name: "Python / Data Analysis", level: 78, category: "Backend" },
-        { name: "PostgreSQL / MySQL", level: 82, category: "Database" },
-        { name: "Git, Docker & Linux", level: 75, category: "DevOps" },
+
+    // TODO: isi URL profil asli. Tombol yang URL-nya kosong tidak akan ditampilkan.
+    socials: {
+        github: "",     // contoh: "https://github.com/username-kamu"
+        linkedin: "",   // contoh: "https://www.linkedin.com/in/username-kamu"
+        instagram: ""   // contoh: "https://www.instagram.com/username-kamu"
+    },
+
+    // Sumber tunggal data skill (dipakai Growth.jsx dan CLI `wick skills`)
+    skillCategories: [
+        {
+            category: "Web Development",
+            accentColor: "from-[#4285F4] to-[#1A73E8]",
+            dotColor: "bg-[#4285F4]",
+            textColor: "text-[#4285F4] dark:text-[#8AB4F8]",
+            skills: [
+                { name: "React & Vite", level: 90, icon: "⚡" },
+                { name: "Tailwind CSS v4", level: 88, icon: "🎨" },
+                { name: "Laravel", level: 70, icon: "🛠️" },
+                { name: "JavaScript / ES6+", level: 85, icon: "💻" }
+            ]
+        },
+        {
+            category: "Android Development",
+            accentColor: "from-[#34A853] to-[#0D652D]",
+            dotColor: "bg-[#34A853]",
+            textColor: "text-[#137333] dark:text-[#81C995]",
+            skills: [
+                { name: "Kotlin / Java", level: 82, icon: "🤖" },
+                { name: "Android Studio", level: 80, icon: "📱" },
+                { name: "Mobile UI Design", level: 78, icon: "✨" }
+            ]
+        },
+        {
+            category: "Cloud & Network Engineering",
+            accentColor: "from-[#FBBC05] to-[#EA4335]",
+            dotColor: "bg-[#FBBC05]",
+            textColor: "text-[#B06000] dark:text-[#FDE293]",
+            skills: [
+                { name: "Google Cloud Platform (GCP)", level: 75, icon: "☁️" },
+                { name: "Cisco Routing & Switching", level: 85, icon: "🌐" },
+                { name: "MikroTik Administration", level: 82, icon: "🔌" }
+            ]
+        }
     ],
 
-    // 2. Growth Journey & Milestone
+    // Urut kronologis
     growth: [
         { period: "2016 - 2022", title: "Pondok Modern Darussalam Gontor", description: "Santri Pondok Modern Darussalam Gontor" },
         { period: "2022 - 2026", title: "Pendidikan S1 Teknik Informatika", description: "Mempelajari fundamental ilmu komputer, struktur data, algoritma, serta rekayasa perangkat lunak." },
-        { period: "2026", title: "Staff LPTSI", description: "Menjadi salah satu staff LPTSI UNIDA Gontor." },
         { period: "2025 - Sekarang", title: "Pengembangan Portofolio & Profesional", description: "Membangun proyek skala penuh dan siap berkontribusi di industri teknologi." },
+        { period: "2026", title: "Staff LPTSI", description: "Menjadi salah satu staff LPTSI UNIDA Gontor." }
     ],
 
-    // 3. Skripsi / Tugas Akhir S1
     thesis: {
         title: "Pengembangan Aplikasi Media Pembelajaran Matematika Pecahan kelas 5 SD Berbasis Android dengan metode gamifikasi",
-        description: "Penelitian akhir strata 1 yang berfokus pada perancangan arsitektur perangkat lunak responsif dan efisiensi query database skala menengah.",
+        description: "Penelitian akhir S1 yang merancang dan membangun aplikasi Android sebagai media belajar pecahan untuk siswa kelas 5 SD, memakai pendekatan gamifikasi agar proses belajar lebih menarik dan interaktif.",
         tech: ["Android", "Kotlin", "Jetpack Compose", "Firebase"],
         status: "Lulus dengan Predikat Memuaskan (S.Kom.)"
     },
 
-    // 4. Sertifikasi & Badges ala Google Skills
+    // TODO: tambahkan `url` kredensial asli; tambah entri baru hanya jika sertifikatnya sudah ada.
     certifications: [
         { issuer: "Google / Platform Industri", title: "Google Cloud Skill Boost", year: "2024" },
-        { issuer: "Dicoding / Platform Global", title: "Cloud Computing", year: "2024" },
-        { issuer: "Kampus / Organisasi", title: "Sertifikasi .....", year: "2025" }
+        { issuer: "Dicoding / Platform Global", title: "Cloud Computing", year: "2024" }
     ],
 
-    // 5. Currently Learning (Kurva Pertumbuhan Aktif)
     currentlyLearning: [
         "Advanced TypeScript Patterns",
         "Docker & Containerization for Production",
         "Cloud Architecture (AWS / Google Cloud Basic)"
     ],
 
-    // 6. Proyek Lengkap dengan Detail Case Study
+    // liveUrl / githubUrl kosong = tombol disembunyikan. Isi dengan URL nyata.
     projects: [
         {
             id: "1",
@@ -56,8 +87,8 @@ export const portfolioData = {
             problem: "Portofolio biasa sering kali kaku dan kurang interaktif bagi rekruter muda.",
             solution: "Membangun antarmuka berbasis komponen React dengan Framer Motion, Tailwind CSS, dan komponen kustom interaktif.",
             techStack: ["React", "Tailwind CSS", "Vite", "Framer Motion"],
-            liveUrl: "#",
-            githubUrl: "#"
+            liveUrl: "",
+            githubUrl: ""
         },
         {
             id: "2",
@@ -67,8 +98,8 @@ export const portfolioData = {
             problem: "Kebutuhan pengelolaan tugas harian yang terstruktur dan cepat bagi pengguna umum.",
             solution: "Membuat aplikasi CRUD web responsif dengan backend terintegrasi.",
             techStack: ["React", "Node.js", "Express", "Tailwind CSS"],
-            liveUrl: "#",
-            githubUrl: "#"
+            liveUrl: "",
+            githubUrl: ""
         },
         {
             id: "data-analytics",
@@ -78,12 +109,11 @@ export const portfolioData = {
             problem: "Kesulitan membaca dataset mentah dalam jumlah besar secara visual.",
             solution: "Membangun dashboard analitik interaktif menggunakan pustaka pemrosesan data Python.",
             techStack: ["Python", "Pandas", "Tailwind CSS"],
-            liveUrl: "#",
-            githubUrl: "#"
+            liveUrl: "",
+            githubUrl: ""
         }
     ],
 
-    // 7. Artikel / Tech Journal Blog
     blogs: [
         {
             id: "optimizing-react-purity",

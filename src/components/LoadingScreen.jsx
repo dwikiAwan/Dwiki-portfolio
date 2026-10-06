@@ -1,6 +1,19 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, lazy, Suspense } from 'react';
 import { motion } from 'framer-motion';
-import MagicRings from './reactbits/MagicRings';
+// three.js (~600 KB) hanya dimuat saat loading screen tampil
+const MagicRingsLazy = lazy(() => import('./reactbits/MagicRings'));
+
+const prefersReducedMotion = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+function MagicRings(props) {
+    return <Suspense fallback={null}><MagicRingsLazy {...props} /></Suspense>;
+}
+
+const getInitialTheme = () => {
+    const saved = localStorage.getItem('theme');
+    if (saved === 'dark' || saved === 'light') return saved;
+    return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+};
 
 const codeSnippets = [
     "Initializing Dwiki_Portfolio_v2026...",
@@ -11,8 +24,8 @@ const codeSnippets = [
 ];
 
 export default function LoadingScreen({ onFinish }) {
-    const [step, setStep] = useState('select-theme');
-    const [selectedTheme, setSelectedTheme] = useState('light');
+    const [step, setStep] = useState(() => (localStorage.getItem('theme') ? 'ready-command' : 'select-theme'));
+    const [selectedTheme, setSelectedTheme] = useState(getInitialTheme);
     const [currentLine, setCurrentLine] = useState(0);
     const [isSplitting, setIsSplitting] = useState(false);
 
