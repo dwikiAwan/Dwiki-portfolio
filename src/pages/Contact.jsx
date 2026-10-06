@@ -46,9 +46,9 @@ export default function Contact() {
         setTimeout(() => setCopied(false), 2500);
     };
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
-        const err = addMessage(name, text, selectedAvatar);
+        const err = await addMessage(name, text, selectedAvatar);
         setErrorMsg(err || '');
         if (err) return;
         setName(''); setText(''); setSelectedAvatar('code'); setCurrentPage(1);
@@ -108,7 +108,7 @@ export default function Contact() {
             <div className={`${card} rounded-[2.5rem] p-8 md:p-12`}>
                 <h2 className="text-2xl font-black mb-2 text-[#202124] dark:text-white flex items-center gap-2"><span>📖</span> Guest Chat</h2>
                 <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">Pilih ikon, tinggalkan pesan, dan berinteraksi di dinding pengunjung.</p>
-                <p className="text-xs text-gray-400 mb-6">Demo: pesan tersimpan di browser kamu saja dan tidak dikirim ke pengunjung lain.</p>
+                <p className="text-xs text-gray-400 mb-6">Pesan tersimpan di Firebase dan tampil real-time untuk semua pengunjung.</p>
 
                 {errorMsg && <div role="alert" className="mb-4 p-3 bg-red-50 dark:bg-red-950/50 border border-red-200 dark:border-red-800 text-red-600 dark:text-red-400 text-xs rounded-xl font-medium">⚠️ {errorMsg}</div>}
 
@@ -147,7 +147,7 @@ export default function Contact() {
                             <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
                             <span className="relative inline-flex rounded-full h-2 w-2 bg-red-500"></span>
                         </span>
-                        <span className="text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400">Pesan Terbaru (lokal)</span>
+                        <span className="text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400">Live Visitor Stream</span>
                     </div>
                     <div className="overflow-hidden whitespace-nowrap w-full">
                         <div className="animate-marquee flex items-center gap-4">

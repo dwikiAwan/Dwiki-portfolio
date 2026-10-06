@@ -23,9 +23,9 @@ export default function LiveComment() {
         if (isOpen && chatRef.current) chatRef.current.scrollTop = chatRef.current.scrollHeight;
     }, [messages, isOpen]);
 
-    const handleSend = (e) => {
+    const handleSend = async (e) => {
         e.preventDefault();
-        const err = addMessage(name, text, selectedAvatar);
+        const err = await addMessage(name, text, selectedAvatar);
         setErrorMsg(err || '');
         if (!err) { setText(''); setSelectedAvatar('code'); }
     };
@@ -56,7 +56,7 @@ export default function LiveComment() {
                         Guest chat <ChevronDown className="w-3.5 h-3.5 text-gray-400" />
                     </span>
                     <div className="flex items-center gap-3">
-                        <span className="px-2 py-0.5 rounded bg-purple-900/60 text-purple-300 text-[10px] font-bold">DEMO</span>
+                        <span className="px-2 py-0.5 rounded bg-purple-900/60 text-purple-300 text-[10px] font-bold">LIVE</span>
                         <button onClick={() => setIsOpen(false)} className="text-gray-400 hover:text-white transition-colors cursor-pointer" aria-label="Close Chat">
                             <X className="w-4 h-4" />
                         </button>

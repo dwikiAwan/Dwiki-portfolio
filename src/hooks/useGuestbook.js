@@ -1,63 +1,93 @@
 import { useState, useEffect, useCallback } from 'react';
+import {
+    collection, query, orderBy, limit, onSnapshot,
+    addDoc, doc, updateDoc, increment, serverTimestamp,
+} from 'firebase/firestore';
+import { db } from '../lib/firebase';
 
-const KEY = 'portfolio_guestbook';
 export const LIMITS = { name: 30, message: 250 };
+const COOLDOWN_MS = 30_000;
+const LAST_POST_KEY = 'gb_last_post';
+const REACTED_KEY = 'gb_reacted';
+const REACTION_TYPES = ['fire', 'like', 'lightning'];
 
-const SEED = [{
-    id: 1,
-    name: 'Contoh Pengunjung',
-    message: 'Ini pesan contoh. Pesan tersimpan lokal di browser kamu saja.',
-    time: 'Contoh',
-    avatar: 'rocket',
-    reactions: { fire: 0, like: 0, lightning: 0 },
-}];
-
-const load = () => {
-    try {
-        const saved = localStorage.getItem(KEY);
-        return saved ? JSON.parse(saved) : SEED;
-    } catch {
-        return SEED;
-    }
+const readJSON = (key, fallback) => {
+    try { return JSON.parse(localStorage.getItem(key)) ?? fallback; } catch { return fallback; }
+};
+const writeJSON = (key, value) => {
+    try { localStorage.setItem(key, JSON.stringify(value)); } catch { /* storage diblokir: abaikan */ }
 };
 
-// Urutan penyimpanan: terbaru di depan. React sudah meng-escape teks,
-// jadi cukup trim + batas panjang (tidak perlu mengubah karakter).
+// status: 'loading' | 'ready' | 'error' | 'offline' (env Firebase belum diisi)
+// messages: terbaru di depan. addMessage() async -> string error atau null.
 export default function useGuestbook() {
-    const [messages, setMessages] = useState(load);
+    const [messages, setMessages] = useState([]);
+    const [status, setStatus] = useState(db ? 'loading' : 'offline');
 
     useEffect(() => {
-        try {
-            localStorage.setItem(KEY, JSON.stringify(messages));
-        } catch {
-            /* storage penuh atau diblokir: abaikan */
-        }
-    }, [messages]);
+        if (!db) return undefined;
+        const q = query(collection(db, 'guestbook'), orderBy('createdAt', 'desc'), limit(50));
+        return onSnapshot(
+            q,
+            (snap) => {
+                setMessages(snap.docs.map((d) => {
+                    const x = d.data({ serverTimestamps: 'estimate' });
+                    return {
+                        id: d.id,
+                        name: x.name,
+                        message: x.message,
+                        avatar: x.avatar,
+                        reactions: { fire: 0, like: 0, lightning: 0, ...x.reactions },
+                        time: x.createdAt?.toDate
+                            ? x.createdAt.toDate().toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' })
+                            : 'Baru saja',
+                    };
+                }));
+                setStatus('ready');
+            },
+            (err) => { console.error('Guestbook:', err); setStatus('error'); }
+        );
+    }, []);
 
-    // Mengembalikan string error, atau null jika berhasil
-    const addMessage = useCallback((rawName, rawText, avatar = 'code') => {
+    const addMessage = useCallback(async (rawName, rawText, avatar = 'code') => {
+        if (!db) return 'Guestbook belum dikonfigurasi (cek file .env.local).';
         const name = rawName.trim();
         const message = rawText.trim();
         if (!name || !message) return 'Nama dan pesan tidak boleh kosong.';
         if (name.length > LIMITS.name || message.length > LIMITS.message) {
             return `Nama maksimal ${LIMITS.name} karakter dan pesan maksimal ${LIMITS.message} karakter.`;
         }
-        setMessages((prev) => [{
-            id: Date.now(),
-            name,
-            message,
-            time: new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' }),
-            avatar,
-            reactions: { fire: 0, like: 0, lightning: 0 },
-        }, ...prev]);
-        return null;
+        const wait = COOLDOWN_MS - (Date.now() - readJSON(LAST_POST_KEY, 0));
+        if (wait > 0) return `Tunggu ${Math.ceil(wait / 1000)} detik sebelum mengirim pesan lagi.`;
+
+        try {
+            await addDoc(collection(db, 'guestbook'), {
+                name, message, avatar,
+                createdAt: serverTimestamp(),
+                reactions: { fire: 0, like: 0, lightning: 0 },
+            });
+            writeJSON(LAST_POST_KEY, Date.now());
+            return null;
+        } catch (err) {
+            console.error('Guestbook:', err);
+            return 'Gagal mengirim pesan. Coba lagi nanti.';
+        }
     }, []);
 
-    const react = useCallback((id, type) => {
-        setMessages((prev) => prev.map((m) => (
-            m.id === id ? { ...m, reactions: { ...m.reactions, [type]: (m.reactions?.[type] || 0) + 1 } } : m
-        )));
+    // Satu reaksi per jenis per pesan per browser (pagar tipis, bukan pengaman utama)
+    const react = useCallback(async (id, type) => {
+        if (!db || !REACTION_TYPES.includes(type)) return;
+        const key = `${id}:${type}`;
+        const done = readJSON(REACTED_KEY, []);
+        if (done.includes(key)) return;
+        writeJSON(REACTED_KEY, [...done, key]);
+        try {
+            await updateDoc(doc(db, 'guestbook', id), { [`reactions.${type}`]: increment(1) });
+        } catch (err) {
+            console.error('Guestbook:', err);
+            writeJSON(REACTED_KEY, done);
+        }
     }, []);
 
-    return { messages, addMessage, react };
+    return { messages, status, addMessage, react };
 }

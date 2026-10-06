@@ -1,0 +1,34 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /guestbook/{id} {
+      function reactionDiff(k) {
+        return request.resource.data.reactions[k] - resource.data.reactions[k];
+      }
+
+      allow read: if true;
+
+      allow create: if request.resource.data.keys().hasOnly(['name', 'message', 'avatar', 'createdAt', 'reactions'])
+        && request.resource.data.name is string
+        && request.resource.data.name.trim().size() > 0
+        && request.resource.data.name.size() <= 30
+        && request.resource.data.message is string
+        && request.resource.data.message.trim().size() > 0
+        && request.resource.data.message.size() <= 250
+        && request.resource.data.avatar in ['code', 'bot', 'rocket', 'shield', 'terminal']
+        && request.resource.data.createdAt == request.time
+        && request.resource.data.reactions.keys().hasOnly(['fire', 'like', 'lightning'])
+        && request.resource.data.reactions.fire == 0
+        && request.resource.data.reactions.like == 0
+        && request.resource.data.reactions.lightning == 0;
+
+      // Hanya field reactions yang boleh berubah, total tepat +1 per permintaan
+      allow update: if request.resource.data.diff(resource.data).affectedKeys().hasOnly(['reactions'])
+        && request.resource.data.reactions.keys().hasOnly(['fire', 'like', 'lightning'])
+        && reactionDiff('fire') >= 0 && reactionDiff('like') >= 0 && reactionDiff('lightning') >= 0
+        && reactionDiff('fire') + reactionDiff('like') + reactionDiff('lightning') == 1;
+
+      allow delete: if false;
+    }
+  }
+}

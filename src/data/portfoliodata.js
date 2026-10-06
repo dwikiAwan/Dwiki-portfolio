@@ -7,9 +7,9 @@ export const portfolioData = {
 
     // TODO: isi URL profil asli. Tombol yang URL-nya kosong tidak akan ditampilkan.
     socials: {
-        github: "",     // contoh: "https://github.com/username-kamu"
-        linkedin: "",   // contoh: "https://www.linkedin.com/in/username-kamu"
-        instagram: ""   // contoh: "https://www.instagram.com/username-kamu"
+        github:  "https://github.com/dwikiAwan",    
+        linkedin: "www.linkedin.com/in/dwiki-awan",   
+        instagram: "https://www.instagram.com/dwiki.awann/"   
     },
 
     // Sumber tunggal data skill (dipakai Growth.jsx dan CLI `wick skills`)

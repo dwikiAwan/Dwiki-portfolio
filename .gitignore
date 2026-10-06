@@ -6,17 +6,41 @@ yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
+firebase-debug.log*
+firestore-debug.log*
 
+# Dependencies & build
 node_modules
 dist
 dist-ssr
-*.local
+.vite
+coverage
 
-# Editor directories and files
+# Environment & secrets (JANGAN di-commit)
+.env
+.env.*
+!.env.example
+*.local
+*.pem
+serviceAccount*.json
+*-adminsdk-*.json
+
+# Firebase / hosting lokal
+.firebase/
+.vercel
+.netlify
+
+# Skrip patch sekali pakai & paket perbaikan
+apply_patches.py
+apply_firebase_patches.py
+dwekfolio-fixes/
+
+# Editor & OS
 .vscode/*
 !.vscode/extensions.json
 .idea
 .DS_Store
+Thumbs.db
 *.suo
 *.ntvs*
 *.njsproj
