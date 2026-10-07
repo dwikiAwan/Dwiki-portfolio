@@ -75,7 +75,7 @@ flowchart LR
 - npm
 - Proyek Firebase dengan Firestore aktif (hanya untuk Guest Chat)
 
-> Pengguna WSL: simpan proyek di filesystem Linux (`~/dwekfolio`), bukan di `/mnt/d`, agar startup dan HMR jauh lebih cepat.
+> deym
 
 ### Langkah
 ```bash
