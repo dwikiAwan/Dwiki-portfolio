@@ -10,7 +10,7 @@ import ProjectDetail from './pages/ProjectDetail';
 import ShapeGrid from './components/reactbits/ShapeGrid';
 import LoadingScreen from './components/LoadingScreen';
 import FloatingTerminal from './components/FloatingTerminal';
-import { FloatingDockProvider } from './components/FloatingDock';
+import { FloatingDockProvider } from './hooks/useFloatingDock.jsx';
 
 const readGridColors = () => {
   const styles = getComputedStyle(document.documentElement);

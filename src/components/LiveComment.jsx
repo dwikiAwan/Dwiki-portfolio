@@ -8,15 +8,9 @@ import useGuestbook, { LIMITS } from '../hooks/useGuestbook';
 
 const BORDER = 'animate-border-run bg-[linear-gradient(270deg,#4285F4,#34A853,#FBBC05,#EA4335,#4285F4)] shadow-2xl';
 
-// Terminal menutup 65vh layar di ponsel, jadi live chat naik ke atasnya.
-// Di layar lebar keduanya berdiri sendiri di sisi berbeda, jadi tidak perlu geser.
-const ABOVE_TERMINAL = 'bottom-[calc(65vh+1.5rem)] sm:bottom-6';
-const DOCKED = 'bottom-6';
-
 export default function LiveComment() {
-    const [isOpen, setIsOpen] = useState(false);
     const { messages, addMessage } = useGuestbook();
-    const { terminalOpen, footerInView } = useFloatingDock();
+    const { chatOpen, setChatOpen, closeChat } = useFloatingDock();
     const [name, setName] = useState('');
     const [text, setText] = useState('');
     const [selectedAvatar, setSelectedAvatar] = useState('code');
@@ -27,8 +21,8 @@ export default function LiveComment() {
     const feed = [...messages].reverse();
 
     useEffect(() => {
-        if (isOpen && chatRef.current) chatRef.current.scrollTop = chatRef.current.scrollHeight;
-    }, [messages, isOpen]);
+        if (chatOpen && chatRef.current) chatRef.current.scrollTop = chatRef.current.scrollHeight;
+    }, [messages, chatOpen]);
 
     const handleSend = async (e) => {
         e.preventDefault();
@@ -37,17 +31,12 @@ export default function LiveComment() {
         if (!err) { setText(''); setSelectedAvatar('code'); }
     };
 
-    // Chat menyingkir saat footer masuk layar, bukan menutupi isinya.
-    if (footerInView) return null;
-
-    const dockClass = terminalOpen ? ABOVE_TERMINAL : DOCKED;
-
-    if (!isOpen) {
+    if (!chatOpen) {
         return (
-            <div className={`fixed ${dockClass} right-6 z-50 p-[2px] rounded-full ${BORDER}`}>
+            <div className={`fixed bottom-6 right-6 z-50 p-[2px] rounded-full ${BORDER}`}>
                 <motion.button
                     initial={{ scale: 0, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.95 }}
-                    onClick={() => setIsOpen(true)} aria-label="Open Live Chat"
+                    onClick={setChatOpen} aria-label="Open Live Chat"
                     className="bg-[#121212] text-white px-5 py-3.5 rounded-full flex items-center gap-2 cursor-pointer shadow-inner"
                 >
                     <MessageSquare className="w-5 h-5 text-[#4285F4]" />
@@ -58,14 +47,12 @@ export default function LiveComment() {
     }
 
     return (
-        <div className={`fixed ${dockClass} right-6 z-50 p-[2px] rounded-[22px] max-w-[calc(100vw-3rem)] ${BORDER}`}>
+        // Di layar sempit panel chat melebar sampai hampir tepi kiri, jadi ia
+        // diangkat keluar dari baris tombol CLI (yang tetap bisa diklik).
+        <div className={`fixed bottom-[5.25rem] right-4 sm:bottom-6 sm:right-6 z-50 p-[2px] rounded-[22px] max-w-[calc(100vw-2rem)] sm:max-w-[calc(100vw-3rem)] ${BORDER}`}>
             <motion.div
                 initial={{ opacity: 0, scale: 0.9, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }}
-                className={`w-80 max-w-full bg-[#18181b] text-white rounded-[20px] overflow-hidden flex flex-col ${
-                    terminalOpen
-                        ? 'h-[calc(35dvh-1.5rem)] max-h-[calc(35dvh-1.5rem)] sm:h-[480px] sm:max-h-[75vh]'
-                        : 'h-[480px] max-h-[75vh]'
-                }`}
+                className="w-80 max-w-full bg-[#18181b] text-white rounded-[20px] overflow-hidden flex flex-col h-[min(480px,calc(100dvh-8rem))] sm:h-[480px] sm:max-h-[75vh]"
             >
                 <div className="bg-[#202023] px-4 py-3 flex items-center justify-between border-b border-gray-800">
                     <span className="text-xs font-bold text-gray-200 flex items-center gap-1 select-none">
@@ -73,7 +60,7 @@ export default function LiveComment() {
                     </span>
                     <div className="flex items-center gap-3">
                         <span className="px-2 py-0.5 rounded bg-purple-900/60 text-purple-300 text-[10px] font-bold">LIVE</span>
-                        <button onClick={() => setIsOpen(false)} className="text-gray-400 hover:text-white transition-colors cursor-pointer" aria-label="Close Chat">
+                        <button onClick={closeChat} className="text-gray-400 hover:text-white transition-colors cursor-pointer" aria-label="Close Chat">
                             <X className="w-4 h-4" />
                         </button>
                     </div>

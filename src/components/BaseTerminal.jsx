@@ -288,7 +288,7 @@ export default function BaseTerminal({ onClose }) {
                     autoComplete="off"
                     spellCheck="false"
                     autoCapitalize="off"
-                    placeholder="ketik wick help, lalu Tab untuk melengkapi…"
+                    placeholder="ketik disini..."
                     className="w-full bg-transparent text-white focus:outline-none text-xs sm:text-sm font-mono"
                 />
                 <button
