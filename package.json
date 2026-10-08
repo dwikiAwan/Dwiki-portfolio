@@ -9,6 +9,9 @@
     "lint": "eslint .",
     "preview": "vite preview"
   },
+  "engines": {
+    "node": ">=20.19"
+  },
   "dependencies": {
     "@tailwindcss/vite": "^4.3.3",
     "firebase": "^12.19.0",
@@ -17,8 +20,7 @@
     "react": "^19.2.8",
     "react-dom": "^19.2.8",
     "react-router-dom": "^7.18.4",
-    "three": "^0.186.0",
-    "engines": { "node": ">=20.19" }
+    "three": "^0.186.0"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
