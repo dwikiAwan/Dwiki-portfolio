@@ -1,4 +1,4 @@
-# dwickport
+# Dwiki Porfolio
 
 Portofolio web pribadi bergaya Google Design (palet biru, hijau, kuning, merah, mode terang/gelap, kartu berbingkai gradien) dengan terminal CLI interaktif dan guestbook real-time berbasis Firebase.
 
