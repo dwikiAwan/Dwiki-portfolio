@@ -4,12 +4,14 @@ import {
     addDoc, doc, updateDoc, increment, serverTimestamp,
 } from 'firebase/firestore';
 import { db } from '../lib/firebase';
+import {
+    LIMITS, COOLDOWN_MS, REACTION_KEYS, emptyReactions,
+} from '../data/guestbook';
 
-export const LIMITS = { name: 30, message: 250 };
-const COOLDOWN_MS = 30_000;
+export { LIMITS };
+
 const LAST_POST_KEY = 'gb_last_post';
 const REACTED_KEY = 'gb_reacted';
-const REACTION_TYPES = ['fire', 'like', 'lightning'];
 
 const readJSON = (key, fallback) => {
     try { return JSON.parse(localStorage.getItem(key)) ?? fallback; } catch { return fallback; }
@@ -37,7 +39,7 @@ export default function useGuestbook() {
                         name: x.name,
                         message: x.message,
                         avatar: x.avatar,
-                        reactions: { fire: 0, like: 0, lightning: 0, ...x.reactions },
+                        reactions: emptyReactions(x.reactions),
                         time: x.createdAt?.toDate
                             ? x.createdAt.toDate().toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' })
                             : 'Baru saja',
@@ -64,7 +66,7 @@ export default function useGuestbook() {
             await addDoc(collection(db, 'guestbook'), {
                 name, message, avatar,
                 createdAt: serverTimestamp(),
-                reactions: { fire: 0, like: 0, lightning: 0 },
+                reactions: emptyReactions(),
             });
             writeJSON(LAST_POST_KEY, Date.now());
             return null;
@@ -76,7 +78,7 @@ export default function useGuestbook() {
 
     // Satu reaksi per jenis per pesan per browser (pagar tipis, bukan pengaman utama)
     const react = useCallback(async (id, type) => {
-        if (!db || !REACTION_TYPES.includes(type)) return;
+        if (!db || !REACTION_KEYS.includes(type)) return;
         const key = `${id}:${type}`;
         const done = readJSON(REACTED_KEY, []);
         if (done.includes(key)) return;

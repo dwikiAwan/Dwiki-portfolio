@@ -1,157 +1,264 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useCallback, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Send } from 'lucide-react';
-import { portfolioData as d } from '../data/portfoliodata';
+import { ChevronRight, Eraser, Search, Terminal as TerminalIcon } from 'lucide-react';
+import { runLine, COMPLETION_TOKENS } from '../terminal/run';
+import { VERSION, findCommand } from '../terminal/commands';
+import { NAV_KEYS, getIndex } from '../terminal/corpus';
+import { suggest } from '../terminal/search';
+import { portfolioData } from '../data/portfoliodata';
+import { articles } from '../data/articles';
+import useGuestbook from '../hooks/useGuestbook';
 
-const COMMANDS = ['help', 'about', 'skills', 'projects', 'contact', 'cv', 'resume', 'search', 'mode', 'nav', 'clear'];
-const ROUTES = { home: '/', projects: '/projects', blog: '/blog', contact: '/contact', terminal: '/terminal' };
-const CV_URL = '/cv-dwiki-kurniawan.pdf';
+const ARTICLE_IDS = articles.map((a) => a.id);
+const PROJECT_IDS = portfolioData.projects.map((p) => p.id);
 
-const HELP = [
-    'Perintah tersedia (wajib awalan wick):',
-    '- wick about            (Info profil)',
-    '- wick skills           (Daftar keahlian)',
-    '- wick projects         (Daftar proyek)',
-    '- wick cv / wick resume (Buka CV)',
-    '- wick search [kata]    (Cari proyek, skill, skripsi, sertifikat)',
-    '- wick mode [light/dark](Ganti tema)',
-    '- wick nav to [home/projects/blog/contact/terminal]',
-    '- wick contact          (Info kontak)',
-    '- wick clear            (Bersihkan layar)',
-    'Tips: panah ↑/↓ untuk riwayat, Tab untuk melengkapi perintah.',
-].join('\n');
-
-// Index pencarian dibangun dari portfolioData agar selalu sinkron
-const buildIndex = () => [
-    ...d.projects.map((p) => ({ text: [p.title, p.description, ...(p.techStack || [])].join(' '), info: `Proyek: ${p.title} (${(p.techStack || []).join(', ')})` })),
-    ...d.skillCategories.flatMap((c) => c.skills.map((s) => ({ text: `${s.name} ${c.category}`, info: `Skill: ${s.name} — ${c.category}` }))),
-    ...d.certifications.map((c) => ({ text: `${c.title} ${c.issuer}`, info: `Sertifikasi: ${c.title} (${c.issuer}, ${c.year})` })),
-    { text: `${d.thesis.title} ${d.thesis.tech.join(' ')} skripsi tugas akhir`, info: `Skripsi: ${d.thesis.title}` },
+const BANNER = [
+    `wick-shell v${VERSION} — search engine + CLI portofolio`,
+    '',
+    'Semua perintah diawali "wick". Mulai dari:',
+    '  wick help          daftar lengkap perintah',
+    '  wick commands      ringkasan satu baris per perintah',
+    '  wick find <kata>   cari di seluruh data proyek',
+    '',
+    'Contoh: wick find react --type=project',
+    'Contoh: wick articles | wick grep react',
+    'Tip: Tab untuk melengkapi, ↑/↓ untuk riwayat, Ctrl+L untuk clear.',
 ];
 
-export default function BaseTerminal({ isFloating = false }) {
+const TONE_CLASS = {
+    ok: 'text-emerald-300',
+    warn: 'text-amber-300',
+    error: 'text-rose-400',
+    cmd: 'text-white font-bold',
+    dim: 'text-gray-500',
+};
+
+/**
+ * Argumen yang diharapkan tiap perintah, dipakai untuk Tab completion.
+ * Sengaja ditulis manual: daftar ini soal UX, bukan sumber kebenaran data.
+ */
+const commandArgs = (cmd) => {
+    if (!cmd) return [];
+    if (cmd.name === 'nav') return ['to', ...NAV_KEYS, ...PROJECT_IDS];
+    if (cmd.name === 'theme') return ['light', 'dark', 'toggle'];
+    if (cmd.name === 'read') return ARTICLE_IDS;
+    if (cmd.name === 'project') return PROJECT_IDS;
+    if (cmd.name === 'where') return ['project', 'skill', 'article', 'thesis', 'cert', 'page', 'contact'];
+    return [];
+};
+
+/** Lengkapi input: nama perintah, argumen perintah, lalu kata kunci korpus. */
+function complete(input) {
+    const parts = input.split(/\s+/);
+
+    // Posisi 1: nama perintah atau alias.
+    if (parts.length <= 1) {
+        const prefix = (parts[0] || '').toLowerCase();
+        if (!prefix) return { input: 'wick ', suggestions: [] };
+        const matches = COMPLETION_TOKENS.filter((c) => c.startsWith(prefix) && c !== prefix);
+        if (matches.length === 1) return { input: `wick ${matches[0]} `, suggestions: [] };
+        return { input, suggestions: matches.slice(0, 8) };
+    }
+
+    // Posisi 2: argumen milik perintah tersebut.
+    if (parts.length === 2) {
+        const partial = parts[1].toLowerCase();
+        const options = commandArgs(findCommand(parts[1].toLowerCase()));
+        const matches = options.filter((a) => a.startsWith(partial) && a !== partial);
+        if (matches.length === 1) return { input: `wick ${parts[1]} ${matches[0]} `, suggestions: [] };
+        return { input, suggestions: matches.slice(0, 8) };
+    }
+
+    // Posisi 3+: teks bebas — kamus korpus adalah autocomplete terbaik di sini.
+    return { input, suggestions: suggest(getIndex(), parts[parts.length - 1].toLowerCase(), 6) };
+}
+
+export default function BaseTerminal({ onClose }) {
     const [input, setInput] = useState('');
-    const [logs, setLogs] = useState([
-        isFloating ? 'Dwiki Terminal v2.0.26' : 'D Terminal Shell v2.0.26 (Search & Navigation Enabled)',
-        "⚠️ Catatan: Semua perintah wajib diawali dengan kata 'wick'.",
-        "Ketik 'wick help' untuk melihat daftar perintah yang tersedia.",
-    ]);
+    const [logs, setLogs] = useState(() => BANNER.map((text) => ({ text, tone: 'ok' })));
+    const [suggestions, setSuggestions] = useState([]);
+    const [copiedAt, setCopiedAt] = useState(null);
     const navigate = useNavigate();
     const logsEndRef = useRef(null);
-    const history = useRef([]);
-    const historyPos = useRef(-1);
+    const historyRef = useRef([]);
+    const historyPosRef = useRef(-1);
+    const guestbook = useGuestbook();
+
+    // Tema ditulis lewat fungsi, bukan di dalam render.
+    const setTheme = useCallback((mode) => {
+        document.documentElement.classList.toggle('dark', mode === 'dark');
+        localStorage.setItem('theme', mode);
+    }, []);
+
+    const ctx = useMemo(
+        () => ({
+            navigate,
+            setTheme,
+            toggleTheme: () => {
+                const next = document.documentElement.classList.contains('dark') ? 'light' : 'dark';
+                setTheme(next);
+                return { out: `Tema diubah ke ${next === 'dark' ? 'Dark' : 'Light'} Mode`, tone: 'ok' };
+            },
+            get history() {
+                return historyRef.current;
+            },
+            resetHistory: () => {
+                historyRef.current = [];
+            },
+            guestbook,
+            openUrl: (url) => window.open(url, '_blank', 'noopener,noreferrer'),
+            closeTerminal: () => onClose?.(),
+        }),
+        [navigate, setTheme, guestbook, onClose]
+    );
 
     useEffect(() => {
         logsEndRef.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-    }, [logs]);
-
-    // Mengembalikan { out, after?, delay?, clear? }
-    const execute = (raw) => {
-        const words = raw.split(/\s+/);
-        if (words[0].toLowerCase() !== 'wick') {
-            return { out: '🤖 Bot Warning: Perintah harus diawali dengan kata "wick" (Contoh: wick help).' };
-        }
-        const cmd = (words[1] || '').toLowerCase();
-        const arg = (words[2] || '').toLowerCase();
-        const query = words.slice(2).join(' ').toLowerCase();
-
-        switch (cmd) {
-            case '':
-            case 'help':
-                return { out: HELP };
-            case 'about':
-                return { out: `${d.name} — ${d.title}\n${d.about}` };
-            case 'skills':
-                return { out: d.skillCategories.map((c) => `${c.category}: ${c.skills.map((s) => s.name).join(', ')}`).join('\n') };
-            case 'projects':
-                return { out: d.projects.map((p, i) => `${i + 1}. ${p.title} [${p.category}]`).join('\n') };
-            case 'contact':
-                return { out: `Email: ${d.email}\nProfil sosial tersedia di halaman Contact.` };
-            case 'cv':
-            case 'resume':
-                return { out: '📄 Membuka berkas CV / Resume...', delay: 600, after: () => window.open(CV_URL, '_blank') };
-            case 'mode':
-                if (arg !== 'light' && arg !== 'dark') return { out: "⚠️ Gunakan 'wick mode light' atau 'wick mode dark'." };
-                document.documentElement.classList.toggle('dark', arg === 'dark');
-                localStorage.setItem('theme', arg);
-                return { out: arg === 'dark' ? '🌙 Tema diubah ke Dark Mode' : '☀️ Tema diubah ke Light Mode' };
-            case 'nav': {
-                const dest = (words[3] || '').toLowerCase();
-                if (arg !== 'to' || !dest) return { out: '⚠️ Format: wick nav to [home/projects/blog/contact/terminal]' };
-                if (ROUTES[dest] === undefined) return { out: `⚠️ Halaman '${dest}' tidak ditemukan.\nTersedia: ${Object.keys(ROUTES).join(', ')}.` };
-                return { out: `🚀 Mengalihkan ke halaman ${dest.toUpperCase()}...`, delay: 800, after: () => navigate(ROUTES[dest]) };
-            }
-            case 'search': {
-                if (!query) return { out: '⚠️ Masukkan kata kunci. Contoh: wick search react' };
-                const hits = buildIndex().filter((i) => i.text.toLowerCase().includes(query));
-                return { out: hits.length ? `🔍 Hasil untuk '${query}':\n${hits.map((h) => `- ${h.info}`).join('\n')}` : `❌ Tidak ada data untuk '${query}'.` };
-            }
-            case 'clear':
-                return { clear: true };
-            default:
-                return { out: `Perintah tidak dikenal: 'wick ${cmd}'. Ketik 'wick help' untuk bantuan.` };
-        }
-    };
+    }, [logs, suggestions]);
 
     const handleCommand = (e) => {
         e.preventDefault();
         const raw = input.trim();
         if (!raw) return;
-        history.current.push(raw);
-        historyPos.current = -1;
-        setInput('');
 
-        const res = execute(raw);
-        if (res.clear) {
-            setLogs(['🧹 Layar dibersihkan.', "Ketik 'wick help' untuk melihat daftar perintah yang tersedia."]);
+        historyRef.current = [...historyRef.current, raw].slice(-100);
+        historyPosRef.current = -1;
+        setInput('');
+        setSuggestions([]);
+
+        const result = runLine(raw, ctx);
+
+        if (result.clear) {
+            setLogs([{ text: 'Layar dibersihkan. Ketik wick help.', tone: 'ok', icon: Eraser }]);
             return;
         }
-        setLogs((prev) => [...prev, `$ ${raw}`, res.out]);
-        if (res.after) setTimeout(res.after, res.delay || 0);
+
+        // meta.text adalah versi polos (tanpa sorotan) untuk disalin pengguna.
+        setLogs((prev) => [
+            ...prev,
+            { text: `$ ${raw}`, tone: 'cmd' },
+            { text: result.out, tone: result.tone, icon: result.icon, copy: result.meta?.text },
+        ]);
+
+        if (result.action?.type === 'navigate') {
+            setTimeout(() => navigate(result.action.to), result.delay || 400);
+        } else if (result.action?.type === 'open') {
+            setTimeout(() => ctx.openUrl(result.action.to), result.delay || 300);
+        } else if (result.action?.type === 'close') {
+            setTimeout(() => onClose?.(), 300);
+        }
     };
 
     const handleKeyDown = (e) => {
-        const h = history.current;
+        const h = historyRef.current;
+
+        if (e.key === 'Tab') {
+            e.preventDefault();
+            const result = complete(input);
+            setInput(result.input);
+            setSuggestions(result.suggestions);
+            return;
+        }
+
         if (e.key === 'ArrowUp' && h.length) {
             e.preventDefault();
-            historyPos.current = historyPos.current === -1 ? h.length - 1 : Math.max(historyPos.current - 1, 0);
-            setInput(h[historyPos.current]);
-        } else if (e.key === 'ArrowDown' && historyPos.current !== -1) {
+            historyPosRef.current =
+                historyPosRef.current === -1 ? h.length - 1 : Math.max(historyPosRef.current - 1, 0);
+            setInput(h[historyPosRef.current]);
+            return;
+        }
+
+        if (e.key === 'ArrowDown' && historyPosRef.current !== -1) {
             e.preventDefault();
-            historyPos.current += 1;
-            if (historyPos.current >= h.length) { historyPos.current = -1; setInput(''); }
-            else setInput(h[historyPos.current]);
-        } else if (e.key === 'Tab') {
-            e.preventDefault();
-            const parts = input.split(/\s+/);
-            if (parts.length === 1 && 'wick'.startsWith(parts[0].toLowerCase()) && parts[0]) setInput('wick ');
-            else if (parts.length === 2 && parts[0].toLowerCase() === 'wick') {
-                const match = COMMANDS.filter((c) => c.startsWith(parts[1].toLowerCase()));
-                if (match.length === 1) setInput(`wick ${match[0]} `);
+            historyPosRef.current += 1;
+            if (historyPosRef.current >= h.length) {
+                historyPosRef.current = -1;
+                setInput('');
+            } else {
+                setInput(h[historyPosRef.current]);
             }
+            return;
+        }
+
+        if (e.key === 'l' && e.ctrlKey) {
+            e.preventDefault();
+            setLogs([{ text: 'Layar dibersihkan.', tone: 'ok', icon: Eraser }]);
+            return;
+        }
+
+        if (e.key === 'Escape') {
+            setInput('');
+            setSuggestions([]);
+        }
+    };
+
+    const copyLog = async (entry) => {
+        if (!entry.copy) return;
+        try {
+            await navigator.clipboard.writeText(entry.copy);
+            setCopiedAt(entry.text);
+            setTimeout(() => setCopiedAt(null), 1200);
+        } catch {
+            /* clipboard ditolak browser: abaikan */
         }
     };
 
     return (
         <div className="flex flex-col h-full bg-black/95 text-emerald-400 p-4 font-mono overflow-hidden">
             <div className="flex-1 overflow-y-auto space-y-2 text-xs sm:text-sm mb-4 pr-2 no-scrollbar">
-                {logs.map((log, i) => (
-                    <div key={i} className={log.startsWith('$') ? 'text-white font-bold whitespace-pre-line' : 'whitespace-pre-line text-emerald-300'}>
-                        {log}
+                {logs.map((log, i) => {
+                    const Icon = log.icon;
+                    const clickable = Boolean(log.copy);
+                    return (
+                        <div
+                            key={i}
+                            onClick={() => copyLog(log)}
+                            title={clickable ? 'Klik untuk menyalin teks polos' : undefined}
+                            className={`flex items-start gap-2 ${TONE_CLASS[log.tone] || TONE_CLASS.ok} ${
+                                clickable ? 'cursor-copy hover:bg-white/5 rounded px-1 -mx-1' : ''
+                            }`}
+                        >
+                            {Icon ? <Icon className="w-4 h-4 shrink-0 mt-0.5" aria-hidden="true" /> : null}
+                            <span className="whitespace-pre-line break-words">
+                                {log.text}
+                                {copiedAt === log.text ? (
+                                    <span className="ml-2 text-[#34A853]">tersalin</span>
+                                ) : null}
+                            </span>
+                        </div>
+                    );
+                })}
+
+                {suggestions.length > 0 && (
+                    <div className="flex items-start gap-2 text-sky-300">
+                        <Search className="w-4 h-4 shrink-0 mt-0.5" aria-hidden="true" />
+                        <span className="break-words">{suggestions.join('   ')}</span>
                     </div>
-                ))}
+                )}
+
                 <div ref={logsEndRef} />
             </div>
+
             <form onSubmit={handleCommand} className="flex items-center gap-2 pt-3 border-t border-gray-800 shrink-0">
-                <span className="text-[#34A853] font-bold text-xs sm:text-sm">$</span>
+                <TerminalIcon className="w-4 h-4 text-[#34A853] shrink-0" aria-hidden="true" />
                 <input
-                    type="text" value={input} onChange={(e) => setInput(e.target.value)} onKeyDown={handleKeyDown}
-                    aria-label="Input perintah terminal" autoComplete="off" spellCheck="false"
-                    placeholder="ketik contoh: wick help, wick mode dark..."
+                    type="text"
+                    value={input}
+                    onChange={(e) => setInput(e.target.value)}
+                    onKeyDown={handleKeyDown}
+                    aria-label="Input perintah terminal"
+                    autoComplete="off"
+                    spellCheck="false"
+                    autoCapitalize="off"
+                    placeholder="ketik wick help, lalu Tab untuk melengkapi…"
                     className="w-full bg-transparent text-white focus:outline-none text-xs sm:text-sm font-mono"
                 />
-                <button type="submit" className="bg-[#34A853] hover:bg-emerald-600 p-2 rounded-xl text-white transition-colors flex items-center justify-center shrink-0 cursor-pointer" aria-label="Execute Command">
-                    <Send className="w-3 h-3" />
+                <button
+                    type="submit"
+                    className="bg-success-solid hover:bg-[#12672e] p-2 rounded-xl text-white transition-colors flex items-center justify-center shrink-0 cursor-pointer"
+                    aria-label="Jalankan perintah"
+                >
+                    <ChevronRight className="w-3 h-3" />
                 </button>
             </form>
         </div>

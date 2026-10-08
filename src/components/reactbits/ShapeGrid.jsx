@@ -3,12 +3,13 @@ import './ShapeGrid.css';
 
 const ShapeGrid = ({
   direction = 'right',
-  speed = 1,
+  speed = 14,
   borderColor = '#999',
   squareSize = 40,
   hoverFillColor = '#222',
   shape = 'square',
   hoverTrailAmount = 0,
+  trailFade = 1.6,
   className = ''
 }) => {
   const canvasRef = useRef(null);
@@ -16,6 +17,7 @@ const ShapeGrid = ({
   const numSquaresX = useRef();
   const numSquaresY = useRef();
   const gridOffset = useRef({ x: 0, y: 0 });
+  const lastTime = useRef(null);
   const hoveredSquare = useRef(null);
   const trailCells = useRef([]);
   const cellOpacities = useRef(new Map());
@@ -25,10 +27,31 @@ const ShapeGrid = ({
     if (!canvas) return;
     const ctx = canvas.getContext('2d');
 
+    // `ctx.strokeStyle` / `ctx.fillStyle` hanya menerima warna konkret;
+    // `var(--x)` akan diabaikan diam-diam dan canvas jatuh ke warna default.
+    const resolveColor = (value, fallback, label) => {
+      const color = (value || '').trim();
+      if (color && !color.includes('var(')) return color;
+      if (import.meta.env.DEV) {
+        console.warn(`[ShapeGrid] ${label} harus warna konkret, bukan var():`, value);
+      }
+      return fallback;
+    };
+    const strokeColor = resolveColor(borderColor, '#999', 'borderColor');
+    const fillColor = resolveColor(hoverFillColor, '#222', 'hoverFillColor');
+
     const isHex = shape === 'hexagon';
     const isTri = shape === 'triangle';
     const hexHoriz = squareSize * 1.5;
     const hexVert = squareSize * Math.sqrt(3);
+
+    // Offset di-snap ke pixel device supaya garis grid tetap tajam dan tidak
+    // "berkedip" antialiasing saat bergerak.
+    const snapOffset = (value, modulo) => {
+      const wrapped = ((value % modulo) + modulo) % modulo;
+      const ratio = window.devicePixelRatio || 1;
+      return Math.round(wrapped * ratio) / ratio;
+    };
 
     const resizeCanvas = () => {
       canvas.width = canvas.offsetWidth;
@@ -77,8 +100,8 @@ const ShapeGrid = ({
 
       if (isHex) {
         const colShift = Math.floor(gridOffset.current.x / hexHoriz);
-        const offsetX = ((gridOffset.current.x % hexHoriz) + hexHoriz) % hexHoriz;
-        const offsetY = ((gridOffset.current.y % hexVert) + hexVert) % hexVert;
+        const offsetX = snapOffset(gridOffset.current.x, hexHoriz);
+        const offsetY = snapOffset(gridOffset.current.y, hexVert);
         const cols = Math.ceil(canvas.width / hexHoriz) + 3;
         const rows = Math.ceil(canvas.height / hexVert) + 3;
 
@@ -91,12 +114,12 @@ const ShapeGrid = ({
             if (alpha) {
               ctx.globalAlpha = alpha;
               drawHex(cx, cy, squareSize);
-              ctx.fillStyle = hoverFillColor;
+              ctx.fillStyle = fillColor;
               ctx.fill();
               ctx.globalAlpha = 1;
             }
             drawHex(cx, cy, squareSize);
-            ctx.strokeStyle = borderColor;
+            ctx.strokeStyle = strokeColor;
             ctx.stroke();
           }
         }
@@ -104,8 +127,8 @@ const ShapeGrid = ({
         const halfW = squareSize / 2;
         const colShift = Math.floor(gridOffset.current.x / halfW);
         const rowShift = Math.floor(gridOffset.current.y / squareSize);
-        const offsetX = ((gridOffset.current.x % halfW) + halfW) % halfW;
-        const offsetY = ((gridOffset.current.y % squareSize) + squareSize) % squareSize;
+        const offsetX = snapOffset(gridOffset.current.x, halfW);
+        const offsetY = snapOffset(gridOffset.current.y, squareSize);
         const cols = Math.ceil(canvas.width / halfW) + 4;
         const rows = Math.ceil(canvas.height / squareSize) + 4;
 
@@ -119,18 +142,18 @@ const ShapeGrid = ({
             if (alpha) {
               ctx.globalAlpha = alpha;
               drawTriangle(cx, cy, squareSize, flip);
-              ctx.fillStyle = hoverFillColor;
+              ctx.fillStyle = fillColor;
               ctx.fill();
               ctx.globalAlpha = 1;
             }
             drawTriangle(cx, cy, squareSize, flip);
-            ctx.strokeStyle = borderColor;
+            ctx.strokeStyle = strokeColor;
             ctx.stroke();
           }
         }
       } else if (shape === 'circle') {
-        const offsetX = ((gridOffset.current.x % squareSize) + squareSize) % squareSize;
-        const offsetY = ((gridOffset.current.y % squareSize) + squareSize) % squareSize;
+        const offsetX = snapOffset(gridOffset.current.x, squareSize);
+        const offsetY = snapOffset(gridOffset.current.y, squareSize);
         const cols = Math.ceil(canvas.width / squareSize) + 3;
         const rows = Math.ceil(canvas.height / squareSize) + 3;
 
@@ -143,18 +166,18 @@ const ShapeGrid = ({
             if (alpha) {
               ctx.globalAlpha = alpha;
               drawCircle(cx, cy, squareSize);
-              ctx.fillStyle = hoverFillColor;
+              ctx.fillStyle = fillColor;
               ctx.fill();
               ctx.globalAlpha = 1;
             }
             drawCircle(cx, cy, squareSize);
-            ctx.strokeStyle = borderColor;
+            ctx.strokeStyle = strokeColor;
             ctx.stroke();
           }
         }
       } else {
-        const offsetX = ((gridOffset.current.x % squareSize) + squareSize) % squareSize;
-        const offsetY = ((gridOffset.current.y % squareSize) + squareSize) % squareSize;
+        const offsetX = snapOffset(gridOffset.current.x, squareSize);
+        const offsetY = snapOffset(gridOffset.current.y, squareSize);
         const cols = Math.ceil(canvas.width / squareSize) + 3;
         const rows = Math.ceil(canvas.height / squareSize) + 3;
 
@@ -166,19 +189,25 @@ const ShapeGrid = ({
             const alpha = cellOpacities.current.get(cellKey);
             if (alpha) {
               ctx.globalAlpha = alpha;
-              ctx.fillStyle = hoverFillColor;
+              ctx.fillStyle = fillColor;
               ctx.fillRect(sx, sy, squareSize, squareSize);
               ctx.globalAlpha = 1;
             }
-            ctx.strokeStyle = borderColor;
+            ctx.strokeStyle = strokeColor;
             ctx.strokeRect(sx, sy, squareSize, squareSize);
           }
         }
       }
     };
 
-    const updateAnimation = () => {
-      const effectiveSpeed = Math.max(speed, 0.1);
+    const updateAnimation = (time) => {
+      // `speed` dibaca sebagai piksel per detik, bukan per frame, supaya
+      // kecepatan gerak sama di 60Hz maupun 120Hz.
+      if (lastTime.current === null) lastTime.current = time;
+      const elapsed = Math.min(time - lastTime.current, 64);
+      lastTime.current = time;
+      const effectiveSpeed = Math.max(speed, 1) * (elapsed / 1000);
+
       const wrapX = isHex ? hexHoriz * 2 : squareSize;
       const wrapY = isHex ? hexVert : isTri ? squareSize * 2 : squareSize;
 
@@ -203,12 +232,12 @@ const ShapeGrid = ({
           break;
       }
 
-      updateCellOpacities();
+      updateCellOpacities(elapsed);
       drawGrid();
       requestRef.current = requestAnimationFrame(updateAnimation);
     };
 
-    const updateCellOpacities = () => {
+    const updateCellOpacities = (elapsed) => {
       const targets = new Map();
       if (hoveredSquare.current) {
         targets.set(`${hoveredSquare.current.x},${hoveredSquare.current.y}`, 1);
@@ -225,9 +254,12 @@ const ShapeGrid = ({
       for (const [key] of targets) {
         if (!cellOpacities.current.has(key)) cellOpacities.current.set(key, 0);
       }
+      // Interpolasi juga berbasis waktu supaya jejak hover memudar dengan
+      // laju yang sama di 60Hz maupun 120Hz.
+      const blend = 1 - Math.exp(-(elapsed / 1000) * trailFade * 6);
       for (const [key, opacity] of cellOpacities.current) {
         const target = targets.get(key) || 0;
-        const next = opacity + (target - opacity) * 0.15;
+        const next = opacity + (target - opacity) * blend;
         if (next < 0.005) cellOpacities.current.delete(key);
         else cellOpacities.current.set(key, next);
       }
@@ -285,6 +317,7 @@ canvas.addEventListener('touchmove', handleTouch, { passive: true });
         cancelAnimationFrame(requestRef.current);
         requestRef.current = null;
       }
+      lastTime.current = null;
     };
 
     const io = new IntersectionObserver(([entry]) => {
@@ -308,7 +341,7 @@ canvas.addEventListener('touchmove', handleTouch, { passive: true });
       canvas.removeEventListener('mousemove', handleMouseMove);
       canvas.removeEventListener('mouseleave', handleMouseLeave);
     };
-  }, [direction, speed, borderColor, hoverFillColor, squareSize, shape, hoverTrailAmount]);
+  }, [direction, speed, borderColor, hoverFillColor, squareSize, shape, hoverTrailAmount, trailFade]);
 
   return <canvas ref={canvasRef} className={`shapegrid-canvas ${className}`}></canvas>;
 };

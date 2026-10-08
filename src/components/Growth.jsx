@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
+import { BarChart3, GraduationCap, Rocket } from 'lucide-react';
 import { portfolioData } from '../data/portfoliodata';
 
 // Impor sub-komponen tab yang telah dipecah
@@ -23,13 +24,13 @@ export default function Growth() {
                 transition={{ duration: 0.6 }}
                 className="text-center mb-10"
             >
-                <span className="text-xs font-bold text-[#34A853] dark:text-[#81C995] bg-emerald-50 dark:bg-emerald-950/40 px-4 py-1.5 rounded-full uppercase tracking-wider border border-emerald-200 dark:border-emerald-800">
+                <span className="text-xs font-bold text-success-ink dark:text-[#81C995] bg-success-wash dark:bg-emerald-950/40 px-4 py-1.5 rounded-full uppercase tracking-wider border border-success-line dark:border-emerald-800">
                     Growth Hub
                 </span>
-                <h2 className="text-3xl md:text-4xl font-extrabold text-[#202124] dark:text-white mt-4">
+                <h2 className="text-3xl md:text-4xl font-extrabold text-ink dark:text-white mt-4">
                     Growth & Capabilities
                 </h2>
-                <p className="text-[#5F6368] dark:text-[#9AA0A6] mt-2 max-w-xl mx-auto text-base">
+                <p className="text-ink-2 dark:text-[#9AA0A6] mt-2 max-w-xl mx-auto text-base">
                     Eksplorasi kompetensi teknis, rekam jejak akademik, serta kurva pembelajaran.
                 </p>
             </motion.div>
@@ -40,31 +41,31 @@ export default function Growth() {
                     onClick={() => setActiveTab('skills')}
                     className={`px-6 py-3 rounded-2xl text-sm font-bold transition-all shadow-xs flex items-center gap-2 cursor-pointer ${
                         activeTab === 'skills'
-                            ? 'bg-[#1A73E8] text-white shadow-md scale-105'
-                            : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700'
+                            ? 'bg-primary text-white shadow-md scale-105'
+                            : 'bg-surface-2 dark:bg-gray-800 text-ink-2 dark:text-gray-300 hover:bg-surface-3 dark:hover:bg-gray-700'
                     }`}
                 >
-                    <span>📊</span> Skills & Analytics
+                    <BarChart3 className="w-4 h-4 shrink-0" aria-hidden="true" /> Skills & Analytics
                 </button>
                 <button
                     onClick={() => setActiveTab('academic')}
                     className={`px-6 py-3 rounded-2xl text-sm font-bold transition-all shadow-xs flex items-center gap-2 cursor-pointer ${
                         activeTab === 'academic'
-                            ? 'bg-[#34A853] text-white shadow-md scale-105'
-                            : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700'
+                            ? 'bg-success-solid text-white shadow-md scale-105'
+                            : 'bg-surface-2 dark:bg-gray-800 text-ink-2 dark:text-gray-300 hover:bg-surface-3 dark:hover:bg-gray-700'
                     }`}
                 >
-                    <span>🎓</span> Academic Background
+                    <GraduationCap className="w-4 h-4 shrink-0" aria-hidden="true" /> Academic Background
                 </button>
                 <button
                     onClick={() => setActiveTab('journey')}
                     className={`px-6 py-3 rounded-2xl text-sm font-bold transition-all shadow-xs flex items-center gap-2 cursor-pointer ${
                         activeTab === 'journey'
                             ? 'bg-[#FBBC05] text-black shadow-md scale-105'
-                            : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700'
+                            : 'bg-surface-2 dark:bg-gray-800 text-ink-2 dark:text-gray-300 hover:bg-surface-3 dark:hover:bg-gray-700'
                     }`}
                 >
-                    <span>🚀</span> Growth Journey
+                    <Rocket className="w-4 h-4 shrink-0" aria-hidden="true" /> Growth Journey
                 </button>
             </div>
 

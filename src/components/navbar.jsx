@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
+import { Moon, Sun } from 'lucide-react';
 import GooeyNav from './reactbits/GooeyNav';
 
 export default function Navbar() {
@@ -81,14 +82,14 @@ export default function Navbar() {
             <nav className={`fixed top-3 left-1/2 -translate-x-1/2 z-[100] w-[94%] max-w-5xl p-[2px] rounded-[26px] shadow-2xl transition-colors duration-500 animate-border-run ${
     isDarkMode 
         ? 'bg-[linear-gradient(270deg,#10B981,#34D399,#FBBF24,#FFFFFF,#34D399,#10B981)]' 
-        : 'bg-[linear-gradient(270deg,#C5221F,#EA4335,#FBBC05,#EA4335,#C5221F)]'
+        : 'bg-[linear-gradient(270deg,#c5221f,#ea4335,#e0a32e,#ea4335,#c5221f)]'
 }`}>
-                <div className="bg-white/90 dark:bg-[#121212]/90 backdrop-blur-md rounded-[24px] px-6 py-2.5 flex items-center justify-between transition-colors duration-300">
+                <div className="bg-surface/90 dark:bg-[#121212]/90 backdrop-blur-md rounded-[24px] px-6 py-2.5 flex items-center justify-between transition-colors duration-300">
                     
                     {/* Logo / Nama */}
                     <div 
                         onClick={() => navigate('/')} 
-                        className="font-bold text-base md:text-lg text-[#202124] dark:text-white flex items-center gap-2 cursor-pointer transition-colors duration-300"
+                        className="font-bold text-base md:text-lg text-ink dark:text-white flex items-center gap-2 cursor-pointer transition-colors duration-300"
                     >
                         <span className={`w-3 h-3 rounded-full inline-block transition-colors duration-300 ${isDarkMode ? 'bg-[#34A853]' : 'bg-[#4285F4]'}`}></span>
                         <span>d'wick.port</span>
@@ -112,16 +113,18 @@ export default function Navbar() {
                     <div className="flex items-center gap-2">
                         <button 
                             onClick={toggleDarkMode}
-                            className="p-2 rounded-full bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors duration-300 flex items-center justify-center shadow-xs"
+                            className="p-2 rounded-full bg-surface-2 dark:bg-gray-800 text-ink-2 dark:text-gray-300 hover:bg-surface-3 dark:hover:bg-gray-700 transition-colors duration-300 flex items-center justify-center shadow-xs"
                             aria-label="Toggle Dark Mode"
                         >
-                            {isDarkMode ? '🌙' : '☀️'}
+                            {isDarkMode
+                                ? <Moon className="w-5 h-5" aria-hidden="true" />
+                                : <Sun className="w-5 h-5" aria-hidden="true" />}
                         </button>
 
                         {/* Tombol Garis 3 (Hamburger) khusus untuk Layar HP / Mobile */}
                         <button 
                             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-                            className="lg:hidden p-2 rounded-full bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors duration-300 flex items-center justify-center shadow-xs"
+                            className="lg:hidden p-2 rounded-full bg-surface-2 dark:bg-gray-800 text-ink-2 dark:text-gray-300 hover:bg-surface-3 dark:hover:bg-gray-700 transition-colors duration-300 flex items-center justify-center shadow-xs"
                             aria-label="Toggle Mobile Menu"
                         >
                             <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
@@ -137,12 +140,12 @@ export default function Navbar() {
 
                 {/* Dropdown Menu HP (Tampil jika mobileMenuOpen true) */}
                 {mobileMenuOpen && (
-                    <div className="lg:hidden mt-2 bg-white/95 dark:bg-[#1E1E20]/95 backdrop-blur-lg rounded-2xl p-4 shadow-xl border border-gray-200 dark:border-gray-800 flex flex-col space-y-2 transition-all">
+                    <div className="lg:hidden mt-2 bg-surface/95 dark:bg-[#1E1E20]/95 backdrop-blur-lg rounded-2xl p-4 shadow-xl border border-line dark:border-gray-800 flex flex-col space-y-2 transition-all">
                         {navItems.map((item, index) => (
                             <button
                                 key={index}
                                 onClick={() => handleMobileNavClick(item.href)}
-                                className="text-left px-4 py-2.5 rounded-xl text-sm font-semibold text-[#202124] dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+                                className="text-left px-4 py-2.5 rounded-xl text-sm font-semibold text-ink dark:text-gray-200 hover:bg-surface-2 dark:hover:bg-gray-800 transition-colors"
                             >
                                 {item.label}
                             </button>

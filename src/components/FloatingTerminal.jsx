@@ -47,7 +47,7 @@ export default function FloatingTerminal() {
                 </div>
 
                 <div className="flex-1 overflow-hidden">
-                    <BaseTerminal isFloating={true} />
+                    <BaseTerminal onClose={() => setIsOpen(false)} />
                 </div>
             </motion.div>
         </div>

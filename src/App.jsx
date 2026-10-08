@@ -11,23 +11,47 @@ import ShapeGrid from './components/reactbits/ShapeGrid';
 import LoadingScreen from './components/LoadingScreen';
 import FloatingTerminal from './components/FloatingTerminal';
 
+const prefersReducedMotion = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+// Canvas 2D tidak bisa membaca CSS custom property, jadi `var(--color-grid)`
+// harus dipecah jadi nilai warna yang konkret sebelum masuk ke `strokeStyle`.
+const readGridColors = () => {
+  const styles = getComputedStyle(document.documentElement);
+  return {
+    border: styles.getPropertyValue('--color-grid').trim() || '#4285f4',
+    fill: styles.getPropertyValue('--color-grid-fill').trim() || '#eaf0f9',
+  };
+};
+
 export default function App() {
   const [isLoading, setIsLoading] = useState(true);
-  const [isDarkMode, setIsDarkMode] = useState(false);
   const handleFinish = useCallback(() => setIsLoading(false), []);
+  const [gridColors, setGridColors] = useState(readGridColors);
   // Grid animasi penuh-halaman dimatikan di mobile & saat reduce-motion aktif
-  const showGrid = true;
+  const [showGrid, setShowGrid] = useState(
+    () => window.innerWidth >= 768 && !prefersReducedMotion()
+  );
 
   useEffect(() => {
-    const checkDarkMode = () => {
-      const isDark = document.documentElement.classList.contains('dark');
-      setIsDarkMode(isDark);
+    const mq = window.matchMedia('(min-width: 768px)');
+    const rm = window.matchMedia('(prefers-reduced-motion: reduce)');
+    const sync = () => setShowGrid(mq.matches && !rm.matches);
+    sync();
+    mq.addEventListener('change', sync);
+    rm.addEventListener('change', sync);
+    return () => {
+      mq.removeEventListener('change', sync);
+      rm.removeEventListener('change', sync);
     };
+  }, []);
 
-    checkDarkMode();
-    const observer = new MutationObserver(checkDarkMode);
+  // Ikuti class `dark` di <html> supaya warna garis grid: biru di light,
+  // hijau di dark.
+  useEffect(() => {
+    const sync = () => setGridColors(readGridColors());
+    const observer = new MutationObserver(sync);
     observer.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
-
+    sync();
     return () => observer.disconnect();
   }, []);
 
@@ -35,18 +59,19 @@ export default function App() {
     <Router>
       {isLoading && <LoadingScreen onFinish={handleFinish} />}
 
-      <div className="relative min-h-screen bg-[#F8F9FA] dark:bg-[#121212] text-[#202124] dark:text-white font-sans overflow-x-clip transition-colors duration-300 flex flex-col justify-between">
+      <div className="relative min-h-screen bg-page dark:bg-[#121212] text-ink dark:text-white font-sans overflow-x-clip transition-colors duration-300 flex flex-col justify-between">
 
         {/* Background ShapeGrid konsisten di semua halaman */}
         <div className="absolute inset-0 pointer-events-none z-0 opacity-70 dark:opacity-35 transition-colors duration-500">
           {showGrid && <ShapeGrid
             squareSize={100}
-            speed={0.2}
+            speed={14}
             direction="right"
-            borderColor={isDarkMode ? "#34A853" : "#3683e9"}
-            hoverFillColor={isDarkMode ? "#0D652D33" : "#E8F0FE"}
+            borderColor={gridColors.border}
+            hoverFillColor={gridColors.fill}
             shape="square"
-            hoverTrailAmount={4}
+            hoverTrailAmount={3}
+            trailFade={1.6}
           />}
         </div>
 
@@ -67,15 +92,16 @@ export default function App() {
           </div>
           
           {/* Footer */}
-          <footer className="relative mt-20 overflow-hidden bg-white/60 dark:bg-[#1A1A1A]/60 backdrop-blur-xs transition-colors duration-300">
+          <footer className="relative mt-20 overflow-hidden bg-surface/60 dark:bg-[#1A1A1A]/60 border-t border-line dark:border-gray-800 backdrop-blur-xs transition-colors duration-300">
             <div className="absolute top-0 left-0 w-full h-[2px] bg-gradient-to-r from-transparent via-[#34A853] to-transparent animate-pulse"></div>
             
-            <div className="py-8 text-center text-sm text-gray-500 dark:text-gray-400">
+            <div className="py-8 text-center text-sm text-ink-3 dark:text-gray-400">
               © 2026 Dwiki Kurniawan • Built with React, Tailwind CSS & Google Style
             </div>
           </footer>
         </div>
-  <FloatingTerminal />
+
+        <FloatingTerminal />
       </div>
     </Router>
   );

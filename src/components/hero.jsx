@@ -4,7 +4,7 @@ import CursorGrid from './reactbits/CursorGrid';
 export default function Hero() {
     return (
         <div className="relative flex flex-col justify-center min-h-[85vh] pt-20 pb-16 px-6 overflow-hidden transition-colors duration-300">
-            {/* Background Halus */}
+            {/* Background */}
             <div className="absolute inset-0 z-0 pointer-events-none">
                 <CursorGrid color="#4285F4" maxOpacity={0.25} radius={120} gridOpacity={0.03} />
             </div>
@@ -16,7 +16,7 @@ export default function Hero() {
                 className="relative z-10 w-full max-w-5xl mx-auto text-center"
             >
                 {/* Material-style Badge */}
-                <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#E8F0FE] dark:bg-[#174EA6]/20 text-[#1967D2] dark:text-[#8AB4F8] text-sm font-medium mb-8 border border-[#D2E3FC] dark:border-[#174EA6]/50 transition-colors duration-300">
+                <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-accent-wash dark:bg-[#174EA6]/20 text-accent dark:text-[#8AB4F8] text-sm font-medium mb-8 border border-accent-line dark:border-[#174EA6]/50 transition-colors duration-300">
                     <span className="relative flex h-2 w-2">
                         <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#4285F4] opacity-75"></span>
                         <span className="relative inline-flex rounded-full h-2 w-2 bg-[#4285F4]"></span>
@@ -24,8 +24,8 @@ export default function Hero() {
                     Fresh graduate • Informatics Engineering
                 </div>
 
-                {/* Headline dengan Efek Ayunan Tertiuap Angin & Bisa Ditarik */}
-                <h1 className="text-5xl md:text-7xl lg:text-[5.5rem] font-extrabold text-[#202124] dark:text-white tracking-tighter leading-[1.05] mb-6 select-none transition-colors duration-300">
+                {/* Headline dengan animasi*/}
+                <h1 className="text-5xl md:text-7xl lg:text-[5.5rem] font-extrabold text-ink dark:text-white tracking-tighter leading-[1.05] mb-6 select-none transition-colors duration-300">
                     <motion.span 
                         drag
                         dragConstraints={{ left: 0, right: 0, top: 0, bottom: 0 }}
@@ -78,7 +78,7 @@ export default function Hero() {
                 </h1>
 
                 {/* Sub-headline */}
-                <p className="text-lg md:text-xl text-[#5F6368] dark:text-[#9AA0A6] max-w-2xl mx-auto mb-10 leading-relaxed font-normal transition-colors duration-300">
+                <p className="text-lg md:text-xl text-ink-2 dark:text-[#9AA0A6] max-w-2xl mx-auto mb-10 leading-relaxed font-normal transition-colors duration-300">
                     Eksplorasi teknologi tanpa batas, merakit solusi digital fungsional dengan performa paling terbaik.
                 </p>
 
@@ -86,13 +86,13 @@ export default function Hero() {
                 <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
                     <a 
                         href="#projects" 
-                        className="w-full sm:w-auto px-8 py-3.5 bg-[#1A73E8] hover:bg-[#1558D6] text-white font-medium rounded-full transition-colors shadow-sm"
+                        className="w-full sm:w-auto px-8 py-3.5 bg-primary hover:bg-primary-hover text-white font-medium rounded-full transition-colors shadow-sm"
                     >
                         Lihat Proyek
                     </a>
                     <a 
                         href="#about" 
-                        className="w-full sm:w-auto px-8 py-3.5 bg-white dark:bg-[#202124] text-[#1A73E8] dark:text-[#8AB4F8] font-medium rounded-full border border-[#DADCE0] dark:border-[#5F6368] hover:bg-[#F8F9FA] dark:hover:bg-[#303134] transition-colors"
+                        className="w-full sm:w-auto px-8 py-3.5 bg-surface dark:bg-[#202124] text-accent dark:text-[#8AB4F8] font-medium rounded-full border border-line dark:border-[#5F6368] hover:bg-page dark:hover:bg-[#303134] transition-colors"
                     >
                         Tentang Saya
                     </a>

@@ -6,7 +6,6 @@ import App from './App.jsx'
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
-    {/* Hormati pengaturan "reduce motion" milik pengunjung */}
     <MotionConfig reducedMotion="user">
       <App />
     </MotionConfig>

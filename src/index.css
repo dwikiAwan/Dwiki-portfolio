@@ -3,21 +3,113 @@
 /* Tambahkan baris ini untuk mengaktifkan mode gelap manual */
 @custom-variant dark (&:where(.dark, .dark *));
 
+/* Palet "Soft Google".
+   Light mode tetap memakai warna khas Google, tapi netralnya digeser ke
+   warna hangat-kabut dan kontrasnya diturunkan supaya tidak menyilaukan mata.
+   Nilai dark ditulis ulang pada blok `.dark` di bawah, jadi utility seperti
+   `bg-surface`, `text-ink`, `border-line` ikut berubah sendiri tanpa perlu
+   menulis ulang setiap `dark:` variant di komponen. */
+@theme {
+  /* Google brand colours */
+  --color-1: #4285f4; /* Google Blue */
+  --color-2: #34a853; /* Google Green */
+  --color-3: #fbbc05; /* Google Yellow */
+  --color-4: #ea4335; /* Google Red */
+
+  /* Netral friendly-light */
+  --color-page: #f1efea; /* latar halaman, hangat & tidak menyilaukan */
+  --color-surface: #fdfcfa; /* kartu / panel */
+  --color-surface-2: #ebe8e2; /* isian halus */
+  --color-surface-3: #e2ded6; /* isian hover */
+  --color-line: #dcd7ce; /* garis tipis */
+  --color-line-strong: #c9c2b5; /* garis penekan */
+  --color-ink: #2f3339; /* teks utama, softer dari #202124 */
+  --color-ink-2: #525863; /* teks sekunder */
+  --color-ink-3: #676d77; /* teks kapur / muted */
+
+  /* Aksi utama: biru di light, hijau di dark */
+  --color-primary: #1a73e8; /* Google Blue 600 */
+  --color-primary-hover: #1558d6;
+
+  /* Grid latar: biru di light, hijau di dark */
+  --color-grid: #4285f4; /* Google Blue 500 */
+  --color-grid-fill: #eaf0f9;
+
+  /* Aksen */
+  --color-accent: #1967d2; /* Google Blue 700, teks & border */
+  --color-accent-hover: #175abc;
+  --color-accent-wash: #eaf0f9;
+  --color-accent-line: #cfdcf0;
+
+  --color-success: #34a853;
+  --color-success-ink: #137333;
+  --color-success-solid: #188038; /* isian dengan teks putih */
+  --color-success-wash: #e8f1ea;
+  --color-success-line: #cfe4d6;
+
+  --color-warn: #e37400;
+  --color-warn-ink: #a35c00;
+  --color-warn-wash: #faf3e3;
+  --color-warn-line: #f0e0bd;
+
+  --color-danger: #ea4335;
+  --color-danger-ink: #c5221f;
+  --color-danger-wash: #faeae7;
+  --color-danger-line: #f2d3ce;
+}
+
+.dark {
+  --color-page: #121212;
+  --color-surface: #1e1e20;
+  --color-surface-2: #2a2a2e;
+  --color-surface-3: #35353a;
+  --color-line: #3d3d43;
+  --color-line-strong: #4e4e56;
+  --color-ink: #eceef0;
+  --color-ink-2: #a2a8b0;
+  --color-ink-3: #8b919a;
+
+  --color-primary: #34a853; /* Google Green 500 */
+  --color-primary-hover: #2c8a46;
+
+  --color-grid: #34a853; /* Google Green 500 */
+  --color-grid-fill: #0d652d33;
+
+  --color-accent: #8ab4f8;
+  --color-accent-hover: #aecbfa;
+  --color-accent-wash: #174ea61a;
+  --color-accent-line: #174ea666;
+
+  --color-success: #34a853;
+  --color-success-ink: #81c995;
+  --color-success-solid: #1e7a34;
+  --color-success-wash: #0d652d33;
+  --color-success-line: #0d652d80;
+
+  --color-warn: #e37400;
+  --color-warn-ink: #fde293;
+  --color-warn-wash: #e3740033;
+  --color-warn-line: #e3740080;
+
+  --color-danger: #ea4335;
+  --color-danger-ink: #f28b82;
+  --color-danger-wash: #a50e0e33;
+  --color-danger-line: #a50e0e80;
+}
+
 html {
+  color-scheme: light;
   scroll-behavior: smooth;
   scroll-padding-top: 100px;
 }
 
-/* Tambahkan di dalam src/index.css */
-:root {
-  --color-1: #4285F4; /* Google Blue */
-  --color-2: #34A853; /* Google Green */
-  --color-3: #FBBC05; /* Google Yellow */
-  --color-4: #EA4335; /* Google Red */
+html.dark {
+  color-scheme: dark;
 }
 
-html {
-  scroll-behavior: smooth;
+body {
+  background-color: var(--color-page);
+  color: var(--color-ink);
 }
 
 /* Sembunyikan scrollbar untuk Chrome, Safari, dan Opera */

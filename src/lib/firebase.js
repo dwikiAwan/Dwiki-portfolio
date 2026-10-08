@@ -1,19 +1,23 @@
 import { initializeApp } from 'firebase/app';
 import { getFirestore } from 'firebase/firestore';
+import { firebaseEnv, isFirebaseConfigured, firebaseDiagnostics } from '../config/env';
 
-const config = {
-    apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
-    authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
-    projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
-    storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
-    messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
-    appId: import.meta.env.VITE_FIREBASE_APP_ID,
-};
+// Config web Firebase memang public by design; yang melindungi data adalah
+// Firestore Rules (src/lib/firestore.rules). Karena itu isinya dibaca lewat
+// src/config/env.js dan tidak pernah dicetak mentah ke konsol.
+if (import.meta.env.DEV) {
+    const d = firebaseDiagnostics();
+    console.info(
+        `[firebase] configured=${d.configured} project=${d.projectId ?? '-'} ` +
+        `apiKey=${d.hasApiKey} appId=${d.hasAppId} missing=${d.missing.length}`
+    );
+}
 
-console.log('FIREBASE CONFIG', {
-  apiKey: !!config.apiKey, projectId: config.projectId, appId: !!config.appId,
-});
+let cachedDb = null;
 
-// Config web Firebase memang publik; keamanan ada di Firestore Rules (lihat firestore.rules)
-export const isFirebaseConfigured = Boolean(config.apiKey && config.projectId && config.appId);
-export const db = isFirebaseConfigured ? getFirestore(initializeApp(config)) : null;
+export { isFirebaseConfigured };
+export const firebaseConfig = firebaseEnv;
+
+export const db = isFirebaseConfigured
+    ? (cachedDb ?? getFirestore(initializeApp(firebaseEnv)))
+    : null;

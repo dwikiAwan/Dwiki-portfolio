@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
-import { MessageSquare, Send, X, ChevronDown } from 'lucide-react';
+import { MessageSquare, Send, TriangleAlert, X, ChevronDown } from 'lucide-react';
 import { AVATARS } from '../data/avatars';
 import Avatar from './Avatar';
 import useGuestbook, { LIMITS } from '../hooks/useGuestbook';
@@ -63,7 +63,12 @@ export default function LiveComment() {
                     </div>
                 </div>
 
-                {errorMsg && <div role="alert" className="mx-3 mt-2 p-2 bg-red-950/80 border border-red-800 text-red-300 text-[10px] rounded-lg">⚠️ {errorMsg}</div>}
+                {errorMsg && (
+                    <div role="alert" className="mx-3 mt-2 p-2 bg-red-950/80 border border-red-800 text-red-300 text-[10px] rounded-lg flex items-start gap-1.5">
+                        <TriangleAlert className="w-3.5 h-3.5 shrink-0 mt-px" aria-hidden="true" />
+                        <span>{errorMsg}</span>
+                    </div>
+                )}
 
                 <div ref={chatRef} className="flex-1 overflow-y-auto p-4 space-y-3.5 no-scrollbar text-xs">
                     {feed.map((m) => (
@@ -83,18 +88,18 @@ export default function LiveComment() {
                             {AVATARS.map((item) => (
                                 <button type="button" key={item.id} onClick={() => setSelectedAvatar(item.id)} title={item.label} aria-label={item.label}
                                     className={`p-2 rounded-xl border transition-all cursor-pointer flex items-center justify-center ${
-                                        selectedAvatar === item.id ? 'bg-[#1A73E8] text-white border-[#1A73E8] scale-105 shadow-md' : 'bg-[#121212] text-gray-400 border-gray-700 hover:bg-gray-800'
+                                        selectedAvatar === item.id ? 'bg-primary text-white border-primary scale-105 shadow-md' : 'bg-[#121212] text-gray-400 border-gray-700 hover:bg-gray-800'
                                     }`}>
                                     <Avatar id={item.id} className="w-3.5 h-3.5" />
                                 </button>
                             ))}
                         </div>
                         <input type="text" value={name} onChange={(e) => setName(e.target.value)} placeholder="Nama / Panggilan..." maxLength={LIMITS.name} required aria-label="Nama"
-                            className="w-full bg-[#121212] text-xs px-3 py-2 rounded-xl border border-gray-700 focus:outline-none focus:border-[#1A73E8] text-white" />
+                            className="w-full bg-[#121212] text-xs px-3 py-2 rounded-xl border border-gray-700 focus:outline-none focus:border-accent text-white" />
                         <div className="flex items-center gap-2">
                             <input type="text" value={text} onChange={(e) => setText(e.target.value)} placeholder="Mulai chat di sini..." maxLength={LIMITS.message} required aria-label="Pesan"
-                                className="flex-1 min-w-0 bg-[#121212] text-xs px-3 py-2 rounded-xl border border-gray-700 focus:outline-none focus:border-[#1A73E8] text-white" />
-                            <button type="submit" aria-label="Send Message" className="bg-[#1A73E8] hover:bg-blue-600 p-2 rounded-xl text-white transition-colors flex items-center justify-center shrink-0 cursor-pointer">
+                                className="flex-1 min-w-0 bg-[#121212] text-xs px-3 py-2 rounded-xl border border-gray-700 focus:outline-none focus:border-accent text-white" />
+                            <button type="submit" aria-label="Send Message" className="bg-primary hover:bg-primary-hover p-2 rounded-xl text-white transition-colors flex items-center justify-center shrink-0 cursor-pointer">
                                 <Send className="w-3.5 h-3.5" />
                             </button>
                         </div>

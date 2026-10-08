@@ -17,13 +17,27 @@ dist-ssr
 coverage
 
 # Environment & secrets (JANGAN di-commit)
+# Nilai asli hanya boleh ada di .env / .env.local. Yang di-commit hanya
+# .env.example yang isinya kosong sebagai acuan nama variabel.
 .env
 .env.*
 !.env.example
 *.local
 *.pem
+*.key
+*.p12
+*.pfx
+*.keystore
+*.jks
 serviceAccount*.json
 *-adminsdk-*.json
+firebase-adminsdk*.json
+.firebaserc
+.gcloudignore
+*.env.bak
+.envrc
+secrets.json
+credentials.json
 
 # Firebase / hosting lokal
 .firebase/
