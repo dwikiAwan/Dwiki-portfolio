@@ -1,0 +1,26 @@
+name: Telegram Deployment Notification
+
+on:
+  push:
+    branches: [ main, master ] # Berjalan otomatis setiap push ke branch main atau master
+
+jobs:
+  notify:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Send Webhook to Telegram
+        env:
+          TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
+          CHAT_ID: ${{ secrets.TELEGRAM_TO }}
+        run: |
+          # Ambil pesan commit pertama (menghindari error multiline JSON)
+          COMMIT_MSG=$(echo "${{ github.event.head_commit.message }}" | head -n 1)
+          
+          # Kirim HTTP POST request ke Webhook Telegram API
+          curl -s -X POST "https://api.telegram.org/bot${TELEGRAM_TOKEN}/sendMessage" \
+            -H "Content-Type: application/json" \
+            -d '{
+              "chat_id": "'"${CHAT_ID}"'",
+              "text": "🚀 *Pembaruan Proyek Vercel*\n\n📦 *Repo:* `${{ github.repository }}`\n🌿 *Branch:* `${{ github.ref_name }}`\n👤 *Pushed by:* `${{ github.actor }}`\n📝 *Commit:* '"${COMMIT_MSG}"'\n\n⏳ _Vercel sedang memproses deployment..._",
+              "parse_mode": "Markdown"
+            }'
