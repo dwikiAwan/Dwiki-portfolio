@@ -54,11 +54,30 @@ export const portfolioData = {
 
     // Urut kronologis
     growth: [
-        { period: "2016 - 2022", title: "Pondok Modern Darussalam Gontor", description: "Santri Pondok Modern Darussalam Gontor" },
-        { period: "2022 - 2026", title: "Pendidikan S1 Teknik Informatika", description: "Mempelajari fundamental ilmu komputer, struktur data, algoritma, serta rekayasa perangkat lunak." },
-        { period: "2025 - Sekarang", title: "Pengembangan Portofolio & Profesional", description: "Membangun proyek skala penuh dan siap berkontribusi di industri teknologi." },
-        { period: "2026", title: "Staff LPTSI", description: "Menjadi salah satu staff LPTSI UNIDA Gontor." }
-    ],
+    {
+        period: "2016 - 2022",
+        title: "Kulliyatul Mu'allimin Al-Islamiyyah (KMI)",
+        institution: "Pondok Modern Darussalam Gontor",
+        description: "Mendapat pendidikan dasar dan menengah di Pondok Modern Darussalam Gontor, mempelajari ilmu agama, bahasa, dan keterampilan dasar yang membentuk karakter serta disiplin belajar."
+    },
+    {
+        period: "2022 - 2026",
+        title: "S1 Teknik Informatika",
+        institution: "Universitas Darussalam Gontor",
+        description: "Mempelajari dasar-dasar ilmu komputer, algoritma, pemrograman, dan pengembangan perangkat lunak"
+    },
+    {
+        period: "2025 - Sekarang",
+        title: "Pengembangan Portofolio & Profesional",
+        description: "Membangun portofolio proyek nyata, mengasah skill teknis, dan berkolaborasi dalam tim untuk menyiapkan karier profesional di bidang software engineering."
+    },
+    {
+        period: "2023 - 2026",
+        title: "Staff LPTSI",
+        institution: "UNIDA Gontor",
+        description: "Menjadi staff Lembaga Pengembangan Teknologi dan Sistem Informasi (LPTSI) UNIDA Gontor, mengelola infrastruktur IT dan pengembangan sistem internal."
+    }
+],
 
     thesis: {
         title: "Pengembangan Aplikasi Media Pembelajaran Matematika Pecahan kelas 5 SD Berbasis Android dengan metode gamifikasi",

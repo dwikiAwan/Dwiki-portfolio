@@ -11,8 +11,6 @@ import ShapeGrid from './components/reactbits/ShapeGrid';
 import LoadingScreen from './components/LoadingScreen';
 import FloatingTerminal from './components/FloatingTerminal';
 
-const prefersReducedMotion = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-
 // Canvas 2D tidak bisa membaca CSS custom property, jadi `var(--color-grid)`
 // harus dipecah jadi nilai warna yang konkret sebelum masuk ke `strokeStyle`.
 const readGridColors = () => {
@@ -27,23 +25,9 @@ export default function App() {
   const [isLoading, setIsLoading] = useState(true);
   const handleFinish = useCallback(() => setIsLoading(false), []);
   const [gridColors, setGridColors] = useState(readGridColors);
-  // Grid animasi penuh-halaman dimatikan di mobile & saat reduce-motion aktif
-  const [showGrid, setShowGrid] = useState(
-    () => window.innerWidth >= 768 && !prefersReducedMotion()
-  );
 
-  useEffect(() => {
-    const mq = window.matchMedia('(min-width: 768px)');
-    const rm = window.matchMedia('(prefers-reduced-motion: reduce)');
-    const sync = () => setShowGrid(mq.matches && !rm.matches);
-    sync();
-    mq.addEventListener('change', sync);
-    rm.addEventListener('change', sync);
-    return () => {
-      mq.removeEventListener('change', sync);
-      rm.removeEventListener('change', sync);
-    };
-  }, []);
+  // ShapeGrid sengaja tidak digate: muncul di mobile maupun desktop, dan
+  // tetap jalan walau pengguna mengaktifkan prefers-reduced-motion.
 
   // Ikuti class `dark` di <html> supaya warna garis grid: biru di light,
   // hijau di dark.
@@ -63,7 +47,7 @@ export default function App() {
 
         {/* Background ShapeGrid konsisten di semua halaman */}
         <div className="absolute inset-0 pointer-events-none z-0 opacity-70 dark:opacity-35 transition-colors duration-500">
-          {showGrid && <ShapeGrid
+          <ShapeGrid
             squareSize={100}
             speed={14}
             direction="right"
@@ -72,7 +56,7 @@ export default function App() {
             shape="square"
             hoverTrailAmount={3}
             trailFade={1.6}
-          />}
+          />
         </div>
 
         {/* Konten Utama & Navigasi */}

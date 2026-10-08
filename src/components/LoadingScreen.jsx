@@ -4,19 +4,9 @@ import { Cog, Moon, Palette, Rocket, Sun } from 'lucide-react';
 // three.js (~600 KB) hanya dimuat saat loading screen tampil
 const MagicRingsLazy = lazy(() => import('./reactbits/MagicRings'));
 
-const prefersReducedMotion = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-
+// MagicRings selalu dirender (mobile + desktop, tanpa pengecualian
+// reduced-motion), jadi tidak perlu lagi cabang gradien statis.
 function MagicRings(props) {
-    // Hormati prefers-reduced-motion: ganti cincin WebGL dengan latar gradien statis
-    if (prefersReducedMotion()) {
-        return (
-            <div
-                aria-hidden="true"
-                className="w-full h-full"
-                style={{ background: `radial-gradient(circle at 50% 45%, ${props.color}33, transparent 65%)` }}
-            />
-        );
-    }
     return <Suspense fallback={null}><MagicRingsLazy {...props} /></Suspense>;
 }
 

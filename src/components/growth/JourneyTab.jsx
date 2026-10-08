@@ -55,11 +55,20 @@ export default function JourneyTab({ portfolioData }) {
                                         </div>
 
                                         {/* Headline / Judul Utama */}
-                                        <h3 className="text-xl font-extrabold text-ink dark:text-white tracking-tight mb-2 group-hover:text-accent dark:group-hover:text-[#8AB4F8] transition-colors">
+                                        {/* Judul */}
+                                        <h3 className="text-xl font-extrabold text-ink dark:text-white tracking-tight mb-1 group-hover:text-accent dark:group-hover:text-[#8AB4F8] transition-colors">
                                             {item.title}
                                         </h3>
 
-                                        {/* Deskripsi Detail */}
+                                        {/* Subtitle: institusi */}
+                                        {item.institution && (
+                                            <p className={`flex items-center gap-1.5 mb-3 text-sm font-semibold text-accent dark:text-[#8AB4F8] ${isEven ? 'md:justify-end' : 'justify-start'}`}>
+                                                <Landmark className="w-3.5 h-3.5 shrink-0" aria-hidden="true" />
+                                                {item.institution}
+                                            </p>
+                                        )}
+
+                                        {/* Deskripsi */}
                                         <p className="text-ink-2 dark:text-[#9AA0A6] text-sm md:text-base leading-relaxed">
                                             {item.description}
                                         </p>
