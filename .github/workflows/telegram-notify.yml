@@ -2,7 +2,8 @@ name: Telegram Deployment Notification
 
 on:
   push:
-    branches: [ main, master ] # Berjalan otomatis setiap push ke branch main atau master
+    branches:
+      - '**' # Menangkap push ke SEMUA branch (main, master, patch-1, dev, dll)
 
 jobs:
   notify:
@@ -13,10 +14,10 @@ jobs:
           TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
           CHAT_ID: ${{ secrets.TELEGRAM_TO }}
         run: |
-          # Ambil pesan commit pertama (menghindari error multiline JSON)
+          # Ambil baris pertama dari pesan commit untuk menghindari format JSON rusak
           COMMIT_MSG=$(echo "${{ github.event.head_commit.message }}" | head -n 1)
           
-          # Kirim HTTP POST request ke Webhook Telegram API
+          # Kirim request ke API Webhook Telegram
           curl -s -X POST "https://api.telegram.org/bot${TELEGRAM_TOKEN}/sendMessage" \
             -H "Content-Type: application/json" \
             -d '{
