@@ -1,4 +1,4 @@
-# Dwekfolio v2.0
+# dwickport
 
 Portofolio web pribadi bergaya Google Design (palet biru, hijau, kuning, merah, mode terang/gelap, kartu berbingkai gradien) dengan terminal CLI interaktif dan guestbook real-time berbasis Firebase.
 
@@ -75,7 +75,7 @@ flowchart LR
 - npm
 - Proyek Firebase dengan Firestore aktif (hanya untuk Guest Chat)
 
-> Pengguna WSL: simpan proyek di filesystem Linux (`~/dwekfolio`), bukan di `/mnt/d`, agar startup dan HMR jauh lebih cepat.
+> deym
 
 ### Langkah
 ```bash
@@ -291,9 +291,10 @@ dwekfolio/
 
 Situs ini memakai `BrowserRouter`, jadi hosting harus mengarahkan semua rute ke `index.html`. Repo sudah menyertakan keduanya:
 
-- **Vercel**: `vercel.json` berisi rewrite ke `/index.html`.
-- **Netlify**: `public/_redirects` berisi `/*  /index.html  200`.
+- **Vercel**: tambahkan `vercel.json`
+  ```json
+  { "rewrites": [{ "source": "/(.*)", "destination": "/index.html" }] }
+  ```
+- **Netlify**: buat `public/_redirects` berisi `/*  /index.html  200`
 
-Masukkan variabel `VITE_FIREBASE_*` di pengaturan Environment Variables hosting.
-
-Setelah domain final diketahui, perbarui `og:url` dan `link rel="canonical"` di `index.html`, lalu tambahkan `og:image` (1200×630) dan `twitter:image`.
+Lalu masukkan variabel `VITE_FIREBASE_*` di pengaturan Environment Variables hosting.
