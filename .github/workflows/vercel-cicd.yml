@@ -1,0 +1,83 @@
+name: Vercel CI/CD Pipeline
+
+on:
+  push:
+    branches:
+      - main
+      - master
+
+jobs:
+  ci-cd-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      # 1. Download kode dari repository
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      # 2. Setup environment Node.js
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      # 3. Step CI: Install Dependencies & Run Testing
+      - name: Install Dependencies
+        run: npm ci
+
+      - name: Run Linter / Testing (CI)
+        run: |
+          # Jalankan test/lint jika ada di package.json
+          npm run lint --if-present
+          npm test --if-present
+
+      # 4. Step CD: Pull environment & Build Vercel Artifacts
+      - name: Pull Vercel Environment Information
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+        run: npx vercel pull --yes --environment=production --token=$VERCEL_TOKEN
+
+      - name: Build Project Artifacts
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+        run: npx vercel build --prod --token=$VERCEL_TOKEN
+
+      # 5. Step CD: Deploy ke Production Vercel
+      - name: Deploy Project Artifacts to Vercel
+        id: deploy
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+        run: |
+          DEPLOY_URL=$(npx vercel deploy --prebuilt --prod --token=$VERCEL_TOKEN)
+          echo "DEPLOY_URL=$DEPLOY_URL" >> $GITHUB_ENV
+
+      # 6. Notifikasi Telegram (Jika Sukses)
+      - name: Send Telegram Success Notification
+        if: success()
+        env:
+          TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
+          CHAT_ID: ${{ secrets.TELEGRAM_TO }}
+        run: |
+          COMMIT_MSG=$(echo "${{ github.event.head_commit.message }}" | head -n 1)
+          curl -s -X POST "https://api.telegram.org/bot${TELEGRAM_TOKEN}/sendMessage" \
+            -H "Content-Type: application/json" \
+            -d '{
+              "chat_id": "'"${CHAT_ID}"'",
+              "text": "✅ *Vercel Deployment Success!*\n\n📦 *Repo:* `${{ github.repository }}`\n🌿 *Branch:* `${{ github.ref_name }}`\n📝 *Commit:* '"${COMMIT_MSG}"'\n🔗 *URL:* '"${{ env.DEPLOY_URL }}"'",
+              "parse_mode": "Markdown"
+            }'
+
+      # 7. Notifikasi Telegram (Jika Gagal / Build Error)
+      - name: Send Telegram Failure Notification
+        if: failure()
+        env:
+          TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
+          CHAT_ID: ${{ secrets.TELEGRAM_TO }}
+        run: |
+          curl -s -X POST "https://api.telegram.org/bot${TELEGRAM_TOKEN}/sendMessage" \
+            -H "Content-Type: application/json" \
+            -d '{
+              "chat_id": "'"${CHAT_ID}"'",
+              "text": "❌ *Vercel Deployment Failed!*\n\n📦 *Repo:* `${{ github.repository }}`\n🌿 *Branch:* `${{ github.ref_name }}`\n⚠️ _Silakan periksa tab Actions di GitHub untuk detail log error._",
+              "parse_mode": "Markdown"
+            }'
