@@ -27,8 +27,6 @@ export default function Home() {
             <section className="min-h-screen flex items-center justify-center">
                 <ContactSection />
             </section>
-
-            {/* Widget YouTube Live Chat Melayang (Fixed di Pojok Kanan Bawah Halaman Home) */}
             <LiveComment />
         </div>
     );

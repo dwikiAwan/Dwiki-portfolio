@@ -1,5 +1,4 @@
 // Artikel tulis sendiri. Dipakai Blog.jsx (tab "Artikel Saya") dan CLI `wick search`.
-// Konten ditulis penuh supaya bisa dibaca tanpa keluar dari situs.
 
 export const articles = [
     {

@@ -17,8 +17,8 @@ dist-ssr
 coverage
 
 # Environment & secrets (JANGAN di-commit)
-# Nilai asli hanya boleh ada di .env / .env.local. Yang di-commit hanya
-# .env.example yang isinya kosong sebagai acuan nama variabel.
+# Nilai asli hanya boleh ada di .env / .env.local. 
+# Yang di-commit hanya .env.example yang isinya kosong sebagai acuan nama variabel.
 .env
 .env.*
 !.env.example

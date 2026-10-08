@@ -3,13 +3,20 @@ import { motion } from 'framer-motion';
 import { MessageSquare, Send, TriangleAlert, X, ChevronDown } from 'lucide-react';
 import { AVATARS } from '../data/avatars';
 import Avatar from './Avatar';
+import { useFloatingDock } from '../hooks/useFloatingDock';
 import useGuestbook, { LIMITS } from '../hooks/useGuestbook';
 
 const BORDER = 'animate-border-run bg-[linear-gradient(270deg,#4285F4,#34A853,#FBBC05,#EA4335,#4285F4)] shadow-2xl';
 
+// Terminal menutup 65vh layar di ponsel, jadi live chat naik ke atasnya.
+// Di layar lebar keduanya berdiri sendiri di sisi berbeda, jadi tidak perlu geser.
+const ABOVE_TERMINAL = 'bottom-[calc(65vh+1.5rem)] sm:bottom-6';
+const DOCKED = 'bottom-6';
+
 export default function LiveComment() {
     const [isOpen, setIsOpen] = useState(false);
     const { messages, addMessage } = useGuestbook();
+    const { terminalOpen, footerInView } = useFloatingDock();
     const [name, setName] = useState('');
     const [text, setText] = useState('');
     const [selectedAvatar, setSelectedAvatar] = useState('code');
@@ -30,26 +37,35 @@ export default function LiveComment() {
         if (!err) { setText(''); setSelectedAvatar('code'); }
     };
 
+    // Chat menyingkir saat footer masuk layar, bukan menutupi isinya.
+    if (footerInView) return null;
+
+    const dockClass = terminalOpen ? ABOVE_TERMINAL : DOCKED;
+
     if (!isOpen) {
         return (
-            <div className={`fixed bottom-6 right-6 z-50 p-[2px] rounded-full ${BORDER}`}>
+            <div className={`fixed ${dockClass} right-6 z-50 p-[2px] rounded-full ${BORDER}`}>
                 <motion.button
                     initial={{ scale: 0, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.95 }}
                     onClick={() => setIsOpen(true)} aria-label="Open Live Chat"
                     className="bg-[#121212] text-white px-5 py-3.5 rounded-full flex items-center gap-2 cursor-pointer shadow-inner"
                 >
                     <MessageSquare className="w-5 h-5 text-[#4285F4]" />
-                    <span className="text-xs font-bold pr-1">Guest Chat</span>
+                    <span className="text-xs font-bold pr-1">Live Chat</span>
                 </motion.button>
             </div>
         );
     }
 
     return (
-        <div className={`fixed bottom-6 right-6 z-50 p-[2px] rounded-[22px] max-w-[calc(100vw-3rem)] ${BORDER}`}>
+        <div className={`fixed ${dockClass} right-6 z-50 p-[2px] rounded-[22px] max-w-[calc(100vw-3rem)] ${BORDER}`}>
             <motion.div
                 initial={{ opacity: 0, scale: 0.9, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }}
-                className="w-80 max-w-full bg-[#18181b] text-white rounded-[20px] overflow-hidden flex flex-col h-[480px] max-h-[75vh]"
+                className={`w-80 max-w-full bg-[#18181b] text-white rounded-[20px] overflow-hidden flex flex-col ${
+                    terminalOpen
+                        ? 'h-[calc(35dvh-1.5rem)] max-h-[calc(35dvh-1.5rem)] sm:h-[480px] sm:max-h-[75vh]'
+                        : 'h-[480px] max-h-[75vh]'
+                }`}
             >
                 <div className="bg-[#202023] px-4 py-3 flex items-center justify-between border-b border-gray-800">
                     <span className="text-xs font-bold text-gray-200 flex items-center gap-1 select-none">

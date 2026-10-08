@@ -112,10 +112,10 @@ export default function Contact() {
             <div className={`${card} rounded-[2.5rem] p-8 md:p-12`}>
                 <h2 className="text-2xl font-black mb-2 text-ink dark:text-white flex items-center gap-2">
                     <BookOpen className="w-6 h-6 shrink-0" aria-hidden="true" />
-                    Guest Chat
+                    Give me roast
                 </h2>
-                <p className="text-sm text-ink-2 dark:text-gray-400 mb-1">Pilih ikon, tinggalkan pesan, dan berinteraksi di dinding pengunjung.</p>
-                <p className="text-xs text-ink-3 mb-6">Pesan tersimpan di Firebase dan tampil real-time untuk semua pengunjung.</p>
+                <p className="text-sm text-ink-2 dark:text-gray-400 mb-1">Pilih ikon, tinggalkan pesan, dan berinteraksi di wall guest.</p>
+                <p className="text-xs text-ink-3 mb-6">Thank you for your message!</p>
 
                 {errorMsg && (
                     <div role="alert" className="mb-4 p-3 bg-danger-wash dark:bg-red-950/50 border border-danger-line dark:border-red-800 text-danger-ink dark:text-red-400 text-xs rounded-xl font-medium flex items-start gap-2">

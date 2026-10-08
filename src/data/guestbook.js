@@ -1,12 +1,3 @@
-/**
- * Konstanta domain guestbook — sumber tunggal untuk UI, hook, dan CLI.
- *
- * PENTING: Firestore Rules (src/lib/firestore.rules) adalah salinan manual
- * dari nilai di bawah, karena Rules berjalan di bahasa terpisah dan tidak
- * bisa meng-import modul JS. Kalau nilai di sini berubah, Rules WAJIB ikut
- * diperbarui atau penulisan akan ditolak server.
- */
-
 export const LIMITS = {
     name: 30,
     message: 250,

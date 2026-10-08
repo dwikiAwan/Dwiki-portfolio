@@ -21,9 +21,9 @@ const STOPWORDS = new Set([
 
 // Bobot per field. Judul jauh lebih informsif daripada isi artikel.
 const FIELD_WEIGHTS = { title: 3.2, tags: 2.4, subtitle: 1.7, body: 1 };
-const K1 = 1.4; // saturasi term frequency
-const B = 0.72; // normalisasi panjang dokumen
-const MIN_FUZZY_LEN = 5; // di bawah ini, toleransi typo tidak diaktifkan
+const K1 = 1.4; 
+const B = 0.72; 
+const MIN_FUZZY_LEN = 5; 
 
 /** Normalisasi: lowercase, buang aksen, sisakan alnum dan beberapa simbol teknis. */
 export const normalize = (value) =>
@@ -143,7 +143,6 @@ const resolveCandidates = (index, token, fuzzy) => {
 };
 
 /**
- * Skor satu token terhadap satu dokumen.
  * Mengembalikan { score, matched } di mana matched =True bila benar-benar ada.
  */
 const scoreToken = (doc, token) => {
@@ -164,14 +163,6 @@ const scoreToken = (doc, token) => {
     return { score, matched };
 };
 
-/**
- * Cari dokumen. Semua token query dianggap wajib ada (AND), kecuali query
- * diawali `or:`. Inilah yang membuat hasil tidak berair.
- *
- * Sebuah token dianggap "terpenuhi" baik oleh kecocokan persis maupun oleh
- * prefix/fuzzy — kalau tidak, toleransi typo justru tidak akan pernah
- * mengembalikan apa pun pada query multi-kata.
- */
 export function search(index, rawQuery, options = {}) {
     const { limit = 8, types = null, tags = null, fuzzy = true, boostIds = [] } = options;
     const query = String(rawQuery || '').trim();
@@ -190,8 +181,8 @@ export function search(index, rawQuery, options = {}) {
         if (tags?.length && !tags.some((t) => (doc.tags || []).some((dt) => normalize(dt) === normalize(t)))) continue;
 
         let docScore = 0;
-        let strongTokens = 0; // cocok persis / prefix
-        let weakTokens = 0;   // hanya cocok lewat toleransi typo
+        let strongTokens = 0; 
+        let weakTokens = 0;   
 
         for (const token of tokens) {
             const { ids, tier } = resolveCandidates(index, token, fuzzy);
@@ -199,8 +190,6 @@ export function search(index, rawQuery, options = {}) {
 
             const { score, matched } = scoreToken(doc, token);
             if (!matched) {
-                // Kandidat dari fuzzy mungkin milik dokumen lain; tanpa teks
-                // yang benar-benar memuat token, ini hanya sinyal lemah.
                 weakTokens += 1;
                 docScore += (ids.size / (N + 1)) * 0.6;
                 continue;
@@ -241,9 +230,6 @@ export function search(index, rawQuery, options = {}) {
 
     const peak = scored[0]?.score || 1;
     const hits = scored.slice(0, limit).map(({ doc, score, exact, strongTokens, weakTokens }) => {
-        // Confidence combines two things: how far it ranks at the top AND how
-        // complete the match is. Normalizing the score against the peak alone
-        // makes a single typo match look like 100%, which is a lie.
         const rank = Math.max(0.04, Math.min(1, score / peak));
         const completeness = strongTokens / tokens.length;
         const quality = weakTokens > strongTokens ? 0.55 : 0.55 + 0.45 * completeness;
@@ -267,7 +253,7 @@ export function suggest(index, prefix, limit = 6) {
     for (const [token, ids] of index.postings) {
         if (token.includes(' ') || ids.size < 1) continue;
         if (!token.startsWith(p)) continue;
-        const weight = ids.size <= 3 ? 2 : 1; // istilah niche lebih berguna
+        const weight = ids.size <= 3 ? 2 : 1; 
         if (!out.has(token) || out.get(token).weight < weight) out.set(token, { token, weight });
     }
     return [...out.values()]

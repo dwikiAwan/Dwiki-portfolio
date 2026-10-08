@@ -4,8 +4,6 @@ import { Cog, Moon, Palette, Rocket, Sun } from 'lucide-react';
 // three.js (~600 KB) hanya dimuat saat loading screen tampil
 const MagicRingsLazy = lazy(() => import('./reactbits/MagicRings'));
 
-// MagicRings selalu dirender (mobile + desktop, tanpa pengecualian
-// reduced-motion), jadi tidak perlu lagi cabang gradien statis.
 function MagicRings(props) {
     return <Suspense fallback={null}><MagicRingsLazy {...props} /></Suspense>;
 }
@@ -144,7 +142,7 @@ export default function LoadingScreen({ onFinish }) {
                             <div className="w-12 h-12 mx-auto mb-4 rounded-full bg-accent-wash dark:bg-blue-900/60 flex items-center justify-center shadow-inner">
                                 <Palette className="w-6 h-6" aria-hidden="true" />
                             </div>
-                            <h3 className="text-2xl font-black mb-2 text-ink dark:text-white">Pilih Vibe Portofolio</h3>
+                            <h3 className="text-2xl font-black mb-2 text-ink dark:text-white">Pilih Vibe Portal</h3>
                             <p className="text-xs font-sans font-medium text-ink-2 dark:text-gray-300 mb-6">
                                 Tentukan mode tampilan awal sebelum sistem dikompilasi sepenuhnya.
                             </p>
@@ -177,7 +175,7 @@ export default function LoadingScreen({ onFinish }) {
                             </div>
 
                             <p className="text-[11px] font-sans text-ink-3 dark:text-gray-400 mb-4">
-                                Preview langsung aktif. Bisa diubah kapan saja lewat tombol di navbar.
+                                Preview langsung aktif. Bisa diubah kapan saja lewat toggle di navbar.
                             </p>
 
                             <button
@@ -224,7 +222,7 @@ export default function LoadingScreen({ onFinish }) {
                                 <span className="w-3 h-3 rounded-full bg-red-500 inline-block"></span>
                                 <span className="w-3 h-3 rounded-full bg-yellow-500 inline-block"></span>
                                 <span className="w-3 h-3 rounded-full bg-green-500 inline-block"></span>
-                                <span className="text-xs text-ink-3 dark:text-gray-400 ml-2 font-bold">dwiki-portfolio-terminal ~ executing</span>
+                                <span className="text-xs text-ink-3 dark:text-gray-400 ml-2 font-bold">wick shell v26 ~ executing</span>
                             </div>
 
                             <div className="space-y-2 text-sm min-h-[140px]">

@@ -1,34 +1,29 @@
 @import "tailwindcss";
 
-/* Tambahkan baris ini untuk mengaktifkan mode gelap manual */
+/*untuk mengaktifkan mode gelap manual */
 @custom-variant dark (&:where(.dark, .dark *));
 
-/* Palet "Soft Google".
-   Light mode tetap memakai warna khas Google, tapi netralnya digeser ke
-   warna hangat-kabut dan kontrasnya diturunkan supaya tidak menyilaukan mata.
-   Nilai dark ditulis ulang pada blok `.dark` di bawah, jadi utility seperti
-   `bg-surface`, `text-ink`, `border-line` ikut berubah sendiri tanpa perlu
-   menulis ulang setiap `dark:` variant di komponen. */
+/* Palet "Soft Google".*/
 @theme {
   /* Google brand colours */
   --color-1: #4285f4; /* Google Blue */
   --color-2: #34a853; /* Google Green */
   --color-3: #fbbc05; /* Google Yellow */
-  --color-4: #ea4335; /* Google Red */
+  --color-4: #ea4335; /* Google Red *
 
   /* Netral friendly-light */
-  --color-page: #f1efea; /* latar halaman, hangat & tidak menyilaukan */
+  --color-page: #f1efea; /* latar halaman */
   --color-surface: #fdfcfa; /* kartu / panel */
-  --color-surface-2: #ebe8e2; /* isian halus */
+  --color-surface-2: #ebe8e2; 
   --color-surface-3: #e2ded6; /* isian hover */
   --color-line: #dcd7ce; /* garis tipis */
   --color-line-strong: #c9c2b5; /* garis penekan */
-  --color-ink: #2f3339; /* teks utama, softer dari #202124 */
+  --color-ink: #2f3339; /* teks utama */
   --color-ink-2: #525863; /* teks sekunder */
-  --color-ink-3: #676d77; /* teks kapur / muted */
+  --color-ink-3: #676d77; 
 
   /* Aksi utama: biru di light, hijau di dark */
-  --color-primary: #1a73e8; /* Google Blue 600 */
+  --color-primary: #1a73e8; 
   --color-primary-hover: #1558d6;
 
   /* Grid latar: biru di light, hijau di dark */
@@ -112,17 +107,15 @@ body {
   color: var(--color-ink);
 }
 
-/* Sembunyikan scrollbar untuk Chrome, Safari, dan Opera */
+/* Sembunyikan scrollbar */
 .no-scrollbar::-webkit-scrollbar {
   display: none;
 }
 
-/* Sembunyikan scrollbar untuk IE, Edge, dan Firefox */
+/* Sembunyikan scrollbar  */
 .no-scrollbar {
   -ms-overflow-style: none;
-  /* IE dan Edge */
   scrollbar-width: none;
-  /* Firefox */
 }
 
 @keyframes marquee {
@@ -137,7 +130,7 @@ body {
 }
 
 .animate-marquee:hover {
-  animation-play-state: paused; /* Berhenti sejenak saat kursor diarahkan ke atasnya */
+  animation-play-state: paused; /* Berhenti sejenak */
 }
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }

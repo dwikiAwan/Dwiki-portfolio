@@ -94,7 +94,7 @@ export default function ContactSection() {
                             onClick={() => navigate('/terminal')}
                             className="w-full sm:w-auto bg-black text-emerald-400 hover:bg-gray-900 font-mono font-semibold px-6 py-3.5 rounded-2xl transition-all text-xs border border-emerald-500/40 flex items-center justify-center gap-2"
                         >
-                            <span>$ open_terminal.sh</span>
+                            <span>$ Wick_shell.sh</span>
                         </button>
                     </div>
 

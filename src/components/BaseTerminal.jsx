@@ -13,15 +13,11 @@ const ARTICLE_IDS = articles.map((a) => a.id);
 const PROJECT_IDS = portfolioData.projects.map((p) => p.id);
 
 const BANNER = [
-    `wick-shell v${VERSION} — search engine + CLI portofolio`,
+    `wick-shell v${VERSION} — search engine + CLI`,
     '',
-    'Semua perintah diawali "wick". Mulai dari:',
-    '  wick help          daftar lengkap perintah',
-    '  wick commands      ringkasan satu baris per perintah',
-    '  wick find <kata>   cari di seluruh data proyek',
+    'Semua perintah diawali "wick".',
+    '  wick help -> lihat daftar perintah',
     '',
-    'Contoh: wick find react --type=project',
-    'Contoh: wick articles | wick grep react',
     'Tip: Tab untuk melengkapi, ↑/↓ untuk riwayat, Ctrl+L untuk clear.',
 ];
 
@@ -29,9 +25,40 @@ const TONE_CLASS = {
     ok: 'text-emerald-300',
     warn: 'text-amber-300',
     error: 'text-rose-400',
-    cmd: 'text-white font-bold',
+    cmd: 'text-white',
     dim: 'text-gray-500',
 };
+
+/**
+ * Warna sintaks untuk baris perintah bash.
+ *
+ * Dipisah dari `TONE_CLASS` karena satu baris perintah berisi beberapa warna:
+ * prompt, nama perintah, flag, operator pipeline, dan argumen.
+ */
+const SYNTAX_CLASS = {
+    prompt: 'text-[#34A853] font-bold',
+    flag: 'text-amber-300',
+    pipe: 'text-gray-500',
+    quoted: 'text-sky-300',
+    word: 'text-white',
+};
+
+/** Pecah baris perintah menjadi potongan berwarna, spasi diwariskan apa adanya. */
+function tokenizeCommand(raw) {
+    const quoted = /^["'].*["']$/;
+    return raw
+        .split(/(\s+)/)
+        .filter((t) => t !== '')
+        .map((text) => {
+            let kind = 'word';
+            if (/^\s+$/.test(text)) kind = null;
+            else if (text === '|') kind = 'pipe';
+            else if (text === 'wick') kind = 'prompt';
+            else if (/^--?[a-z]/i.test(text)) kind = 'flag';
+            else if (quoted.test(text)) kind = 'quoted';
+            return { text, className: kind ? SYNTAX_CLASS[kind] : undefined };
+        });
+}
 
 /**
  * Argumen yang diharapkan tiap perintah, dipakai untuk Tab completion.
@@ -136,7 +163,7 @@ export default function BaseTerminal({ onClose }) {
         // meta.text adalah versi polos (tanpa sorotan) untuk disalin pengguna.
         setLogs((prev) => [
             ...prev,
-            { text: `$ ${raw}`, tone: 'cmd' },
+            { text: `$ ${raw}`, tone: 'cmd', segments: tokenizeCommand(raw) },
             { text: result.out, tone: result.tone, icon: result.icon, copy: result.meta?.text },
         ]);
 
@@ -204,7 +231,7 @@ export default function BaseTerminal({ onClose }) {
     };
 
     return (
-        <div className="flex flex-col h-full bg-black/95 text-emerald-400 p-4 font-mono overflow-hidden">
+        <div className="flex flex-col h-full text-emerald-400 p-4 font-mono overflow-hidden">
             <div className="flex-1 overflow-y-auto space-y-2 text-xs sm:text-sm mb-4 pr-2 no-scrollbar">
                 {logs.map((log, i) => {
                     const Icon = log.icon;
@@ -220,7 +247,18 @@ export default function BaseTerminal({ onClose }) {
                         >
                             {Icon ? <Icon className="w-4 h-4 shrink-0 mt-0.5" aria-hidden="true" /> : null}
                             <span className="whitespace-pre-line break-words">
-                                {log.text}
+                                {log.segments ? (
+                                    <>
+                                        <span className="text-gray-500 select-none">$ </span>
+                                        {log.segments.map((seg, k) => (
+                                            <span key={k} className={seg.className}>
+                                                {seg.text}
+                                            </span>
+                                        ))}
+                                    </>
+                                ) : (
+                                    log.text
+                                )}
                                 {copiedAt === log.text ? (
                                     <span className="ml-2 text-[#34A853]">tersalin</span>
                                 ) : null}

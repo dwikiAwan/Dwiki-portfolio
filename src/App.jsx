@@ -10,9 +10,8 @@ import ProjectDetail from './pages/ProjectDetail';
 import ShapeGrid from './components/reactbits/ShapeGrid';
 import LoadingScreen from './components/LoadingScreen';
 import FloatingTerminal from './components/FloatingTerminal';
+import { FloatingDockProvider } from './components/FloatingDock';
 
-// Canvas 2D tidak bisa membaca CSS custom property, jadi `var(--color-grid)`
-// harus dipecah jadi nilai warna yang konkret sebelum masuk ke `strokeStyle`.
 const readGridColors = () => {
   const styles = getComputedStyle(document.documentElement);
   return {
@@ -26,10 +25,6 @@ export default function App() {
   const handleFinish = useCallback(() => setIsLoading(false), []);
   const [gridColors, setGridColors] = useState(readGridColors);
 
-  // ShapeGrid sengaja tidak digate: muncul di mobile maupun desktop, dan
-  // tetap jalan walau pengguna mengaktifkan prefers-reduced-motion.
-
-  // Ikuti class `dark` di <html> supaya warna garis grid: biru di light,
   // hijau di dark.
   useEffect(() => {
     const sync = () => setGridColors(readGridColors());
@@ -41,11 +36,12 @@ export default function App() {
 
   return (
     <Router>
+      <FloatingDockProvider>
       {isLoading && <LoadingScreen onFinish={handleFinish} />}
 
       <div className="relative min-h-screen bg-page dark:bg-[#121212] text-ink dark:text-white font-sans overflow-x-clip transition-colors duration-300 flex flex-col justify-between">
 
-        {/* Background ShapeGrid konsisten di semua halaman */}
+        {/* Background ShapeGrid*/}
         <div className="absolute inset-0 pointer-events-none z-0 opacity-70 dark:opacity-35 transition-colors duration-500">
           <ShapeGrid
             squareSize={100}
@@ -63,7 +59,7 @@ export default function App() {
         <div className="relative z-10 flex flex-col min-h-screen">
           <Navbar />
           
-          {/* Bagian ini yang mengatur agar halaman berganti secara bersih */}
+          {/* Konten Halaman */}
           <div className="flex-grow pt-24">
             <Routes>
               <Route path="/" element={<Home />} />
@@ -87,6 +83,7 @@ export default function App() {
 
         <FloatingTerminal />
       </div>
+      </FloatingDockProvider>
     </Router>
   );
 }

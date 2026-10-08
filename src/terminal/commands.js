@@ -106,6 +106,31 @@ const CATEGORY_GROUPS = [
     { key: 'sys', label: 'Sistem', icon: Terminal },
 ];
 
+/**
+ * Format `wick help`: nama perintah dikelompokkan per kategori, disusul
+ * deskripsi singkat dengan pemisah `--`. Detail panjang ada di
+ * `wick help <perintah>`.
+ */
+const HELP_LABEL_W = 16;
+const HELP_SEP = '-- ';
+const HELP_INDENT = ' '.repeat(2 + HELP_LABEL_W + HELP_SEP.length);
+
+const helpCommandLines = (cmd) => {
+    const [first, ...rest] = wrap(cmd.summary, 76 - HELP_INDENT.length).split('\n');
+    return [
+        `  ${pad(cmd.name, HELP_LABEL_W)}${HELP_SEP}${first}`,
+        ...rest.map((l) => `${HELP_INDENT}${l}`),
+    ];
+};
+
+const renderHelpList = () =>
+    CATEGORY_GROUPS.map((g) =>
+        [
+            g.label,
+            ...COMMANDS.filter((c) => c.group === g.key).flatMap(helpCommandLines),
+        ].join('\n')
+    ).join('\n\n');
+
 const defineCommand = (spec) => spec;
 
 export const COMMANDS = [
@@ -117,18 +142,16 @@ export const COMMANDS = [
         usage: 'wick help [perintah]',
         summary: 'Tampilkan daftar atau detail perintah.',
         detail:
-            'Tanpa argumen: daftar perintah dikelompokkan. Dengan argumen:usage, alias, dan contoh lengkap.',
+            'Tanpa argumen: daftar nama perintah dikelompokkan per kategori. Dengan argumen: synopsis, ringkasan, deskripsi panjang, dan kelompoknya.',
         run: (ctx, args) => {
             const target = (args.phrase || '').toLowerCase();
             if (!target) {
-                const blocks = CATEGORY_GROUPS.map((g) => {
-                    const items = COMMANDS.filter((c) => c.group === g.key);
-                    return `${g.label.toUpperCase()}\n${items
-                        .map((c) => `  ${pad(c.name, 12)}${c.summary}`)
-                        .join('\n')}`;
-                }).join('\n\n');
                 return ok(
-                    `${blocks}\n\n${wrap('Semua perintah diawali "wick". Contoh: wick find react, wick read terminal-ui, wick nav to blog.', 76, '  ')}`
+                    [
+                        renderHelpList(),
+                        '',
+                        wrap('- wick shell v3.0.0 -', 76, '  '),
+                    ].join('\n')
                 );
             }
             const cmd = findCommand(target);
@@ -157,7 +180,7 @@ export const COMMANDS = [
         group: 'sys',
         usage: 'wick man <perintah>',
         summary: 'Manual lengkap satu perintah.',
-        detail: 'Setara Unix man, tanpa perluremember halaman.',
+        detail: 'Setara Unix man, tanpa perlu remember halaman.',
         run: (_ctx, args) => {
             const cmd = findCommand(args.phrase || args.args[0] || '');
             if (!cmd) return err(`Perintah tidak ditemukan: '${args.phrase}'. Coba: wick commands`);
@@ -929,20 +952,47 @@ const findCommand = (name) => {
 
 const titles = (hits) => hits.map((h) => `${h.id}\t${h.title}`).join('\n');
 
-const renderMan = (cmd) =>
-    [
-        `NAME`,
+/** Garis pemisah dokumentasi: memisahkan ringkasan dari deskripsi panjang. */
+const docDivider = (width = 48) => '─'.repeat(width);
+
+/**
+ * Halaman manual satu perintah.
+ *
+ * Dokumentasi dibagi dua lapis: `summary` berperan sebagai komentar satu baris,
+ * lalu `detail` sebagai deskripsi panjang. Keduanya dipisah garis `───` supaya
+ * pembaca bisa berhenti di ringkasan tanpa membaca paragraf panjang.
+ */
+const renderMan = (cmd) => {
+    // `detail` boleh ditulis sebagai string atau array paragraf.
+    const flatten = (v) => (Array.isArray(v) ? v.join('\n') : String(v ?? '')).trim();
+    const summary = flatten(cmd.summary);
+    const detail = flatten(cmd.detail);
+    const indent = (block) => block.split('\n').map((l) => (l ? `  ${l}` : ''));
+
+    const lines = [
+        'NAME',
         `  wick ${cmd.name}${cmd.aliases.length ? `, ${cmd.aliases.join(', ')}` : ''}`,
         '',
         'SYNOPSIS',
-        ...cmd.usage.split('\n').map((l) => `  ${l}`),
+        ...String(cmd.usage || '').split('\n').map((l) => `  ${l}`),
         '',
-        'DESCRIPTION',
-        ...String(cmd.detail || cmd.summary).split('\n').map((l) => (l ? `  ${l}` : '')),
+        'SUMMARY',
+        ...indent(summary),
+    ];
+
+    // Pemisah hanya muncul kalau memang ada deskripsi yang lebih dalam.
+    if (detail && detail !== summary) {
+        lines.push('', docDivider(), '', 'DESCRIPTION', ...indent(detail));
+    }
+
+    lines.push(
         '',
         'GROUP',
-        `  ${CATEGORY_GROUPS.find((g) => g.key === cmd.group)?.label || cmd.group}`,
-    ].join('\n');
+        `  ${CATEGORY_GROUPS.find((g) => g.key === cmd.group)?.label || cmd.group}`
+    );
+
+    return lines.join('\n');
+};
 
 /** Pohon direktori dengan glyph cabut standar. */
 function renderTree(node) {
