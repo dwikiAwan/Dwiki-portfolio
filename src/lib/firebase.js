@@ -1,6 +1,5 @@
 import { initializeApp } from 'firebase/app';
 import { getFirestore } from 'firebase/firestore';
-import { initializeAppCheck, ReCaptchaV3Provider } from 'firebase/app-check';
 import { firebaseEnv, isFirebaseConfigured, firebaseDiagnostics } from '../config/env';
 
 // Config web Firebase memang public by design; yang melindungi data adalah
@@ -16,17 +15,8 @@ if (import.meta.env.DEV) {
 
 const app = isFirebaseConfigured ? initializeApp(firebaseEnv) : null;
 
-// App Check hanya dipasang kalau site key tersedia: itu yang menahan
-// bot/spam. Tanpa key, diabaikan diam-diam supaya tidak memblokir situs.
-const recaptchaSiteKey = import.meta.env.VITE_RECAPTCHA_SITE_KEY;
-if (app && recaptchaSiteKey) {
-    initializeAppCheck(app, {
-        provider: new ReCaptchaV3Provider(recaptchaSiteKey),
-        isTokenAutoRefreshEnabled: true,
-    });
-} else if (import.meta.env.DEV) {
-    console.info('[firebase] App Check nonaktif (VITE_RECAPTCHA_SITE_KEY belum diisi)');
-}
+// App Check sengaja tidak dipakai: reCAPTCHA Enterprise (satu-satunya provider
+// web yang masih didukung) butuh Blaze. Spam ditahan di src/lib/firestore.rules.
 
 export { isFirebaseConfigured };
 export const firebaseConfig = firebaseEnv;

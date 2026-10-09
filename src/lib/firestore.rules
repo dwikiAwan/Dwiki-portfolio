@@ -28,13 +28,45 @@ service cloud.firestore {
         && request.resource.data.reactions.lightning is int
         && request.resource.data.reactions.fire == 0
         && request.resource.data.reactions.like == 0
-        && request.resource.data.reactions.lightning == 0;
+        && request.resource.data.reactions.lightning == 0
+        // Kuota: client wajib menulis penghitung di batch yang sama, dan
+        // getAfter() melihat nilai SETELAH increment. Menulis pesan tanpa
+        // batch ditolak di sini, bukan nanti.
+        && getAfter(/databases/$(database)/documents/guestbookQuota/current).data.count <= 50
+        && getAfter(/databases/$(database)/documents/guestbookQuota/current).data.windowStart
+             > request.time - duration.value(24, 'h');
 
       // Hanya field reactions yang boleh berubah, total tepat +1 per permintaan
       allow update: if request.resource.data.diff(resource.data).affectedKeys().hasOnly(['reactions'])
         && request.resource.data.reactions.keys().hasOnly(['fire', 'like', 'lightning'])
         && reactionDiff('fire') >= 0 && reactionDiff('like') >= 0 && reactionDiff('lightning') >= 0
         && reactionDiff('fire') + reactionDiff('like') + reactionDiff('lightning') == 1;
+
+      allow delete: if false;
+    }
+
+    // Penghitung kuota global. Nilainya tidak dirahasiakan: yang melindungi
+    // adalah syarat update, bukan kerahasiaannya.
+    //
+    // Dua jalur sah saja:
+    //   1. naik 1            -> satu pesan consumption
+    //   2. reset ke 1        -> hanya kalau jendela 24 jam sudah lewat, dan
+    //                           batasnya dibandingkan ke request.time (nilai
+    //                           server), jadi client tidak bisa mengarang.
+    //
+    // Menghapus atau menurunkan count secara manual tidak mungkin: count
+    // hanya boleh naik, atau turun ke 1 lewat reset yang sudah kedaluwarsa.
+    match /guestbookQuota/current {
+      allow read: if true;
+
+      allow create: if request.resource.data.keys().hasOnly(['count', 'windowStart'])
+        && request.resource.data.count == 1
+        && request.resource.data.windowStart == request.time;
+
+      allow update: if request.resource.data.count == resource.data.count + 1
+        || (request.resource.data.count == 1
+            && request.resource.data.windowStart == request.time
+            && resource.data.windowStart <= request.time - duration.value(24, 'h'));
 
       allow delete: if false;
     }

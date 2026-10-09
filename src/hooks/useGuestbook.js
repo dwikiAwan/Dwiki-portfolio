@@ -1,11 +1,13 @@
 import { useState, useEffect, useCallback } from 'react';
 import {
     collection, query, orderBy, limit, onSnapshot,
-    addDoc, doc, updateDoc, increment, serverTimestamp,
+    doc, updateDoc, increment, serverTimestamp,
+    writeBatch, getDoc,
 } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 import {
     LIMITS, COOLDOWN_MS, REACTION_KEYS, emptyReactions,
+    MAX_PER_WINDOW, QUOTA_WINDOW_MS,
 } from '../data/guestbook';
 
 export { LIMITS };
@@ -75,15 +77,37 @@ export default function useGuestbook() {
         if (wait > 0) return `Tunggu ${Math.ceil(wait / 1000)} detik sebelum mengirim pesan lagi.`;
 
         try {
-            await addDoc(collection(db, 'guestbook'), {
+            // Kuota harian dan pesan ditulis dalam satu batch: Rules membaca
+            // nilai counter SETELAH increment (getAfter), jadi bot yang
+            // menulis langsung ke Firestore tanpa batch akan ditolak.
+            const quotaRef = doc(db, 'guestbookQuota', 'current');
+            const snap = await getDoc(quotaRef);
+            const w = snap.exists() ? snap.data().windowStart?.toMillis?.() : 0;
+            const expired = !snap.exists() || Date.now() - w >= QUOTA_WINDOW_MS;
+            if (!expired && snap.data().count >= MAX_PER_WINDOW) {
+                return `Kuota ${MAX_PER_WINDOW} pesan per 24 jam sudah habis. Coba lagi besok.`;
+            }
+
+            const batch = writeBatch(db);
+            if (expired) {
+                batch.set(quotaRef, { count: 1, windowStart: serverTimestamp() });
+            } else {
+                batch.update(quotaRef, { count: increment(1) });
+            }
+            batch.set(doc(collection(db, 'guestbook')), {
                 name, message, avatar,
                 createdAt: serverTimestamp(),
                 reactions: emptyReactions(),
             });
+            await batch.commit();
+
             writeJSON(LAST_POST_KEY, Date.now());
             return null;
         } catch (err) {
             console.error('Guestbook:', err);
+            if (err.code === 'permission-denied') {
+                return 'Kuota pesan harian sudah habis. Coba lagi nanti.';
+            }
             return 'Gagal mengirim pesan. Coba lagi nanti.';
         }
     }, []);

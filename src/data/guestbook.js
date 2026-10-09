@@ -5,6 +5,10 @@ export const LIMITS = {
 
 export const COOLDOWN_MS = 30_000;
 
+/** Kuota tulis global per jendela 24 jam. Harus identik dengan batas di Rules. */
+export const MAX_PER_WINDOW = 50;
+export const QUOTA_WINDOW_MS = 24 * 60 * 60 * 1000;
+
 /** Kunci ini harus identik dengan yang diizinkan Rules. */
 export const REACTION_META = [
     { key: 'fire', label: '[fire]', name: 'Fire' },
