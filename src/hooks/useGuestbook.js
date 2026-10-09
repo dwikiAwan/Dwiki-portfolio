@@ -12,6 +12,7 @@ export { LIMITS };
 
 const LAST_POST_KEY = 'gb_last_post';
 const REACTED_KEY = 'gb_reacted';
+const CACHE_KEY = 'gb_cache';
 
 const readJSON = (key, fallback) => {
     try { return JSON.parse(localStorage.getItem(key)) ?? fallback; } catch { return fallback; }
@@ -20,10 +21,19 @@ const writeJSON = (key, value) => {
     try { localStorage.setItem(key, JSON.stringify(value)); } catch { /* storage diblokir: abaikan */ }
 };
 
+// Cache ringan di localStorage (pola sama seperti useLiveArticles) supaya chat
+// tidak kosong setelah refresh saat Firestore lambat atau read-nya gagal.
+const readCache = () => {
+    try {
+        const items = JSON.parse(localStorage.getItem(CACHE_KEY) || 'null');
+        return Array.isArray(items) ? items : [];
+    } catch { return []; }
+};
+
 // status: 'loading' | 'ready' | 'error' | 'offline' (env Firebase belum diisi)
 // messages: terbaru di depan. addMessage() async -> string error atau null.
 export default function useGuestbook() {
-    const [messages, setMessages] = useState([]);
+    const [messages, setMessages] = useState(() => (db ? readCache() : []));
     const [status, setStatus] = useState(db ? 'loading' : 'offline');
 
     useEffect(() => {
@@ -32,7 +42,7 @@ export default function useGuestbook() {
         return onSnapshot(
             q,
             (snap) => {
-                setMessages(snap.docs.map((d) => {
+                const items = snap.docs.map((d) => {
                     const x = d.data({ serverTimestamps: 'estimate' });
                     return {
                         id: d.id,
@@ -44,7 +54,9 @@ export default function useGuestbook() {
                             ? x.createdAt.toDate().toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' })
                             : 'Baru saja',
                     };
-                }));
+                });
+                setMessages(items);
+                writeJSON(CACHE_KEY, items);
                 setStatus('ready');
             },
             (err) => { console.error('Guestbook:', err); setStatus('error'); }

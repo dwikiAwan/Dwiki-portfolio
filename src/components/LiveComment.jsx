@@ -5,11 +5,12 @@ import { AVATARS } from '../data/avatars';
 import Avatar from './Avatar';
 import { useFloatingDock } from '../hooks/useFloatingDock';
 import useGuestbook, { LIMITS } from '../hooks/useGuestbook';
+import { GUESTBOOK_STATUS } from '../data/guestbook';
 
 const BORDER = 'animate-border-run bg-[linear-gradient(270deg,#4285F4,#34A853,#FBBC05,#EA4335,#4285F4)] shadow-2xl';
 
 export default function LiveComment() {
-    const { messages, addMessage } = useGuestbook();
+    const { messages, status, addMessage } = useGuestbook();
     const { chatOpen, setChatOpen, closeChat } = useFloatingDock();
     const [name, setName] = useState('');
     const [text, setText] = useState('');
@@ -74,6 +75,9 @@ export default function LiveComment() {
                 )}
 
                 <div ref={chatRef} className="flex-1 overflow-y-auto p-4 space-y-3.5 no-scrollbar text-xs">
+                    {status !== 'ready' && (
+                        <p role="status" className="text-[10px] text-amber-300/80">{GUESTBOOK_STATUS[status]}</p>
+                    )}
                     {feed.map((m) => (
                         <div key={m.id} className="flex items-start gap-2.5 leading-relaxed">
                             <div className="p-1.5 rounded-full bg-gray-800 text-[#34A853] shrink-0 mt-0.5"><Avatar id={m.avatar} className="w-3.5 h-3.5" /></div>
