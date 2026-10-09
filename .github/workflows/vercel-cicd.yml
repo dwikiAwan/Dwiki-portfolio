@@ -6,6 +6,9 @@ on:
       - main
       - master
 
+permissions:
+  contents: read
+
 jobs:
   ci-cd-deploy:
     runs-on: ubuntu-latest
@@ -37,12 +40,12 @@ jobs:
           VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
           VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
           VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
-        run: npx vercel pull --yes --environment=production --token=$VERCEL_TOKEN
+        run: npx vercel pull --yes --environment=production --token="$VERCEL_TOKEN"
 
       - name: Build Project Artifacts
         env:
           VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
-        run: npx vercel build --prod --token=$VERCEL_TOKEN
+        run: npx vercel build --prod --token="$VERCEL_TOKEN"
 
       # 5. Step CD: Deploy ke Production Vercel
       - name: Deploy Project Artifacts to Vercel
@@ -50,24 +53,46 @@ jobs:
         env:
           VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
         run: |
-          DEPLOY_URL=$(npx vercel deploy --prebuilt --prod --token=$VERCEL_TOKEN)
-          echo "DEPLOY_URL=$DEPLOY_URL" >> $GITHUB_ENV
+          set -euo pipefail
+          # Output `vercel deploy` berisi baris log + URL di akhir; ambil baris
+          # terakhir dan buang kode warna ANSI supaya URL-nya bersih.
+          RAW=$(npx vercel deploy --prebuilt --prod --token="$VERCEL_TOKEN")
+          DEPLOY_URL=$(printf '%s\n' "$RAW" | sed -e 's/\x1b\[[0-9;]*m//g' | tail -n 1)
+          echo "DEPLOY_URL=$DEPLOY_URL" >> "$GITHUB_ENV"
 
       # 6. Notifikasi Telegram (Jika Sukses)
+      # Pola yang sama: nilai event masuk lewat env, JSON dirakit dengan jq.
       - name: Send Telegram Success Notification
         if: success()
         env:
           TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
           CHAT_ID: ${{ secrets.TELEGRAM_TO }}
+          REPO: ${{ github.repository }}
+          BRANCH: ${{ github.ref_name }}
+          COMMIT_MSG: ${{ github.event.head_commit.message }}
+          DEPLOY_URL: ${{ env.DEPLOY_URL }}
         run: |
-          COMMIT_MSG=$(echo "${{ github.event.head_commit.message }}" | head -n 1)
-          curl -s -X POST "https://api.telegram.org/bot${TELEGRAM_TOKEN}/sendMessage" \
+          set -euo pipefail
+          FIRST_LINE=$(printf '%s' "$COMMIT_MSG" | head -n 1)
+
+          TEXT=$(printf '✅ *Vercel Deployment Success!*\n\n📦 *Repo:* `%s`\n🌿 *Branch:* `%s`\n📝 *Commit:* %s\n🔗 *URL:* %s' \
+            "$REPO" "$BRANCH" "$FIRST_LINE" "$DEPLOY_URL")
+
+          PAYLOAD=$(jq -n \
+            --arg chat_id "$CHAT_ID" \
+            --arg text "$TEXT" \
+            '{chat_id: $chat_id, text: $text, parse_mode: "Markdown"}')
+
+          STATUS=$(curl -sS -o /tmp/tg-response.json -w '%{http_code}' \
+            -X POST "https://api.telegram.org/bot${TELEGRAM_TOKEN}/sendMessage" \
             -H "Content-Type: application/json" \
-            -d '{
-              "chat_id": "'"${CHAT_ID}"'",
-              "text": "✅ *Vercel Deployment Success!*\n\n📦 *Repo:* `${{ github.repository }}`\n🌿 *Branch:* `${{ github.ref_name }}`\n📝 *Commit:* '"${COMMIT_MSG}"'\n🔗 *URL:* '"${{ env.DEPLOY_URL }}"'",
-              "parse_mode": "Markdown"
-            }'
+            --data-binary "$PAYLOAD")
+
+          if [ "$STATUS" != "200" ]; then
+            echo "::error::Telegram API menolak dengan HTTP $STATUS"
+            jq -r '.description // "tanpa deskripsi"' /tmp/tg-response.json || true
+            exit 1
+          fi
 
       # 7. Notifikasi Telegram (Jika Gagal / Build Error)
       - name: Send Telegram Failure Notification
@@ -75,11 +100,27 @@ jobs:
         env:
           TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
           CHAT_ID: ${{ secrets.TELEGRAM_TO }}
+          REPO: ${{ github.repository }}
+          BRANCH: ${{ github.ref_name }}
+          COMMIT_MSG: ${{ github.event.head_commit.message }}
         run: |
-          curl -s -X POST "https://api.telegram.org/bot${TELEGRAM_TOKEN}/sendMessage" \
+          set -euo pipefail
+          FIRST_LINE=$(printf '%s' "$COMMIT_MSG" | head -n 1)
+
+          TEXT=$(printf '❌ *Vercel Deployment Failed!*\n\n📦 *Repo:* `%s`\n🌿 *Branch:* `%s`\n📝 *Commit:* %s\n⚠️ _Periksa tab Actions di GitHub untuk detail log error._' \
+            "$REPO" "$BRANCH" "$FIRST_LINE")
+
+          PAYLOAD=$(jq -n \
+            --arg chat_id "$CHAT_ID" \
+            --arg text "$TEXT" \
+            '{chat_id: $chat_id, text: $text, parse_mode: "Markdown"}')
+
+          STATUS=$(curl -sS -o /tmp/tg-response.json -w '%{http_code}' \
+            -X POST "https://api.telegram.org/bot${TELEGRAM_TOKEN}/sendMessage" \
             -H "Content-Type: application/json" \
-            -d '{
-              "chat_id": "'"${CHAT_ID}"'",
-              "text": "❌ *Vercel Deployment Failed!*\n\n📦 *Repo:* `${{ github.repository }}`\n🌿 *Branch:* `${{ github.ref_name }}`\n⚠️ _Silakan periksa tab Actions di GitHub untuk detail log error._",
-              "parse_mode": "Markdown"
-            }'
+            --data-binary "$PAYLOAD")
+
+          if [ "$STATUS" != "200" ]; then
+            echo "::warning::Notifikasi gagal dijalankan (HTTP $STATUS)"
+            jq -r '.description // "tanpa deskripsi"' /tmp/tg-response.json || true
+          fi

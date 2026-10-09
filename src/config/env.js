@@ -17,23 +17,56 @@ const SCHEMA = [
     { key: 'VITE_FIREBASE_STORAGE_BUCKET', secret: false, required: false, desc: 'Storage bucket' },
     { key: 'VITE_FIREBASE_MESSAGING_SENDER_ID', secret: false, required: false, desc: 'Messaging sender ID' },
     { key: 'VITE_FIREBASE_APP_ID', secret: false, required: false, desc: 'Firebase app ID' },
-    { key: 'VITE_FIREBASE_APPCHECK_DEBUG_TOKEN', secret: true, required: false, desc: 'App Check debug token' },
+    { key: 'VITE_FIREBASE_APPCHECK_DEBUG_TOKEN', secret: true, required: false, desc: 'App Check debug token (DEV ONLY, jangan pernah di Vercel)' },
+    { key: 'VITE_RECAPTCHA_SITE_KEY', secret: true, required: false, desc: 'reCAPTCHA v3 site key untuk App Check' },
     { key: 'VITE_SITE_URL', secret: false, required: false, desc: 'URL produksi situs' },
     { key: 'VITE_CONTACT_EMAIL', secret: false, required: false, desc: 'Email kontak (fallback)' },
 ];
 
+// WAJIB ditulis eksplisit satu per satu. Akses `import.meta.env[key]`
+// (dinamis) membuat Vite menyuntikkan SELURUH objek env ke bundle, termasuk
+// VITE_FIREBASE_APPCHECK_DEBUG_TOKEN yang seharusnya tidak pernah masuk browser.
+// Daftar eksplisit = hanya kunci di sini yang bisa bocor ke bundle.
+const STATIC_ENV = {
+    VITE_FIREBASE_API_KEY: import.meta.env.VITE_FIREBASE_API_KEY,
+    VITE_FIREBASE_AUTH_DOMAIN: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
+    VITE_FIREBASE_PROJECT_ID: import.meta.env.VITE_FIREBASE_PROJECT_ID,
+    VITE_FIREBASE_STORAGE_BUCKET: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
+    VITE_FIREBASE_MESSAGING_SENDER_ID: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
+    VITE_FIREBASE_APP_ID: import.meta.env.VITE_FIREBASE_APP_ID,
+    VITE_FIREBASE_APPCHECK_DEBUG_TOKEN: import.meta.env.VITE_FIREBASE_APPCHECK_DEBUG_TOKEN,
+    VITE_RECAPTCHA_SITE_KEY: import.meta.env.VITE_RECAPTCHA_SITE_KEY,
+    VITE_SITE_URL: import.meta.env.VITE_SITE_URL,
+    VITE_CONTACT_EMAIL: import.meta.env.VITE_CONTACT_EMAIL,
+};
+
 const raw = (key) => {
-    const v = import.meta.env?.[key];
+    const v = STATIC_ENV[key];
     return typeof v === 'string' ? v.trim() : v == null ? '' : String(v);
 };
 
-// Sensor nilai: sisakan 4 karakter terakhir supaya tetap bisa dikoreksi
-// tanpa membuka kredensial penuh di layar.
-export const mask = (value, keep = 4) => {
+// Hanya http/https yang diizinkan. Menolak javascript:, data:, dan vbscript:
+// mencegah URL dari env atau data eksternal jadi vektor XSS saat dipakai di
+// href/src. Input tidak valid -> string kosong, bukan url aslinya.
+export const safeUrl = (value) => {
+    try {
+        const { protocol } = new URL(String(value ?? '').trim());
+        return protocol === 'http:' || protocol === 'https:' ? String(value).trim() : '';
+    } catch {
+        return '';
+    }
+};
+
+// Sensor nilai untuk kunci non-secret: sisakan 4 karakter terakhir supaya
+// tetap bisa dikoreksi tanpa membuka nilai penuh di layar.
+// Kunci secret:true tidak boleh menampilkan karakter apa pun — panjang
+// nilai saja sudah membantu penyerang, jadi cukup Status isi/kosong.
+export const mask = (value, secret = false) => {
+    if (secret) return String(value ?? '') ? 'TERISI' : '(kosong)';
     const v = String(value ?? '');
     if (!v) return '(kosong)';
-    if (v.length <= keep) return '*'.repeat(v.length);
-    return `${'*'.repeat(Math.min(v.length - keep, 12))}${v.slice(-keep)}`;
+    if (v.length <= 4) return '*'.repeat(v.length);
+    return `${'*'.repeat(Math.min(v.length - 4, 12))}${v.slice(-4)}`;
 };
 
 /** Status tiap kunci env tanpa pernah membocorkan nilainya. */
@@ -46,9 +79,9 @@ export const envReport = () =>
             required,
             secret,
             set: value.length > 0,
-            // Untuk non-secret tetap disensor penuh: output terminal bisa
-            // direkam layar / di-share, jadi tidak ada nilai yang tampil mentah.
-            value: value ? mask(value) : '(kosong)',
+            // Kunci secret ditampilkan sebagai TERISI/kosong saja; kunci
+            // non-secret tetap disensor supaya output terminal aman di-share.
+            value: mask(value, secret),
         };
     });
 
@@ -63,14 +96,8 @@ export const firebaseEnv = {
     appId: raw('VITE_FIREBASE_APP_ID'),
 };
 
-/** Writable untuk pengujian / runtime override dari terminal. */
-export const setEnvOverride = (key, value) => {
-    if (!SCHEMA.some((s) => s.key === key)) return false;
-    import.meta.env[key] = value;
-    return true;
-};
-
-export const siteUrl = () => raw('VITE_SITE_URL');
+/** URL situs: hanya http/https yang boleh, sisanya ditolak. */
+export const siteUrl = () => safeUrl(raw('VITE_SITE_URL'));
 export const contactEmailFallback = () => raw('VITE_CONTACT_EMAIL');
 
 // Tiga nilai inti ini menentukan apakah Firebase bisa hidup.

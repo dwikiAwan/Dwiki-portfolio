@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { BookOpen, ChevronLeft, ChevronRight, Check, Copy, FileText, Flame, Handshake, Mail, Rocket, Send, ThumbsUp, TriangleAlert, Zap } from 'lucide-react';
 import { portfolioData } from '../data/portfoliodata';
+import { safeUrl } from '../config/env';
 import { AVATARS } from '../data/avatars';
 import Avatar from '../components/Avatar';
 import useGuestbook, { LIMITS } from '../hooks/useGuestbook';
@@ -38,7 +39,9 @@ export default function Contact() {
 
     const totalPages = Math.ceil(messages.length / ITEMS_PER_PAGE);
     const currentMessages = messages.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE);
-    const socials = SOCIAL.filter((s) => portfolioData.socials?.[s.key]);
+    // safeUrl menyingkirkan URL non-http(s) supaya data yang tidak valid
+    // tidak pernah jadi href javascript:/data:.
+    const socials = SOCIAL.map((s) => ({ ...s, href: safeUrl(portfolioData.socials?.[s.key]) })).filter((s) => s.href);
 
     const handleCopyEmail = () => {
         navigator.clipboard.writeText(portfolioData.email);
@@ -68,7 +71,7 @@ export default function Contact() {
                     <h3 className="text-xs font-bold uppercase tracking-wider text-ink-3 mb-4">Social Connect</h3>
                     <div className="flex flex-wrap justify-center gap-4">
                         {socials.map((s) => (
-                            <a key={s.key} href={portfolioData.socials[s.key]} target="_blank" rel="noreferrer"
+                            <a key={s.key} href={s.href} target="_blank" rel="noreferrer"
                                 className={`flex items-center gap-2 px-5 py-3 rounded-2xl font-semibold text-sm transition-all border border-line dark:border-gray-800 ${s.cls}`}>
                                 <svg className="w-5 h-5 fill-current" viewBox="0 0 24 24" aria-hidden="true"><path d={s.path} /></svg>
                                 <span>{s.label}</span>

@@ -6,7 +6,10 @@ service cloud.firestore {
         return request.resource.data.reactions[k] - resource.data.reactions[k];
       }
 
-      allow read: if true;
+      // Baca satu dokumen bebas, tapi query dibatasi 50 agar koleksi
+      // tidak bisa di-dump utuh oleh siapa pun.
+      allow get: if true;
+      allow list: if request.query.limit <= 50;
 
       allow create: if request.resource.data.keys().hasOnly(['name', 'message', 'avatar', 'createdAt', 'reactions'])
         && request.resource.data.name is string
@@ -18,6 +21,11 @@ service cloud.firestore {
         && request.resource.data.avatar in ['code', 'bot', 'rocket', 'shield', 'terminal']
         && request.resource.data.createdAt == request.time
         && request.resource.data.reactions.keys().hasOnly(['fire', 'like', 'lightning'])
+        // PENTING: is int, bukan hanya == 0. Tanpa ini penyerang bisa kirim
+        // string/array dan menaikkan counter sendiri tanpa batas.
+        && request.resource.data.reactions.fire is int
+        && request.resource.data.reactions.like is int
+        && request.resource.data.reactions.lightning is int
         && request.resource.data.reactions.fire == 0
         && request.resource.data.reactions.like == 0
         && request.resource.data.reactions.lightning == 0;
