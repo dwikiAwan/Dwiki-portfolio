@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
 
 export default function DecryptText({ children, speed = 80, delay = 400 }) {
-    // Inisialisasi awal langsung kosong tanpa perlu memanggil setState di dalam effect
     const [displayText, setDisplayText] = useState('');
     const targetText = children || '';
 

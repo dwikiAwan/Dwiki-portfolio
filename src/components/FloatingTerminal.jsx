@@ -7,9 +7,6 @@ import { useFloatingDock } from '../hooks/useFloatingDock';
 export default function FloatingTerminal() {
     const { pathname } = useLocation();
     const { terminalOpen, setTerminalOpen, closeTerminal } = useFloatingDock();
-
-    // Halaman /terminal sudah punya jendela terminal penuh, jadi tombol
-    // floating disembunyikan agar tidak ada dua terminal yang bertumpuk.
     if (pathname === '/terminal') return null;
 
     if (!terminalOpen) {
@@ -32,8 +29,6 @@ export default function FloatingTerminal() {
     }
 
     return (
-        // Di layar sempit panel terminal melebar sampai hampir tepi kanan, jadi ia
-        // diangkat keluar dari baris tombol Live Chat (yang tetap bisa diklik).
         <div className="fixed bottom-[5.25rem] left-4 sm:bottom-6 sm:left-6 z-50 p-[2px] rounded-[22px] animate-border-run bg-[linear-gradient(270deg,#4285F4,#34A853,#FBBC05,#EA4335,#4285F4)] shadow-2xl">
             <motion.div
                 initial={{ opacity: 0, scale: 0.9, y: 20 }}

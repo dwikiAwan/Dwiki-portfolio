@@ -1,5 +1,6 @@
 import { motion } from 'framer-motion';
-import { ExternalLink, Code } from 'lucide-react';
+import { ExternalLink } from 'lucide-react';
+import GithubIcon from './GithubIcon';
 
 export default function ProjectCard({ project, index = 0, onClick }) {
     return (
@@ -12,16 +13,26 @@ export default function ProjectCard({ project, index = 0, onClick }) {
             className="relative rounded-[2.5rem] p-[2px] bg-[linear-gradient(to_bottom_right,#EA4335,#FBBC05,#34A853,#4285F4)] shadow-lg flex flex-col group cursor-pointer"
             onClick={onClick}
         >
-            <div className="bg-surface dark:bg-[#1E1E20] rounded-[calc(2.5rem-2px)] p-8 flex flex-col justify-between h-full transition-colors duration-300">
-                <div>
-                    <div className="flex items-center justify-between mb-4">
-                        <span className="text-xs font-bold px-3 py-1 bg-accent-wash dark:bg-blue-950/40 text-accent dark:text-[#8AB4F8] border border-accent-line dark:border-blue-900 rounded-full">
+            <div className="bg-surface dark:bg-[#1E1E20] rounded-[calc(2.5rem-2px)] p-5 pt-0 flex flex-col justify-between h-full transition-colors duration-300">
+                {project.images?.[0] && (
+                    <div className="pt-5 -mb-1">
+                        <img
+                            src={project.images[0]}
+                            alt={`Thumbnail ${project.title}`}
+                            loading="lazy"
+                            className="w-full aspect-video object-cover rounded-[1.5rem] border border-line dark:border-gray-800"
+                        />
+                    </div>
+                )}
+                <div className="pt-5">
+                    <div className="flex items-center justify-between mb-3">
+                        <span className="text-xs font-bold px-2.5 py-0.5 bg-accent-wash dark:bg-blue-950/40 text-accent dark:text-[#8AB4F8] border border-accent-line dark:border-blue-900 rounded-full">
                             {project.category || 'Web'}
                         </span>
                         <div className="flex gap-2 items-center" onClick={(e) => e.stopPropagation()}>
                             {project.githubUrl && (
                                 <a href={project.githubUrl} target="_blank" rel="noreferrer" aria-label="GitHub Repository" className="text-ink-3 hover:text-black dark:hover:text-white">
-                                    <Code className="w-4 h-4" />
+                                    <GithubIcon className="w-4 h-4" />
                                 </a>
                             )}
                             {project.liveUrl && (
@@ -31,17 +42,17 @@ export default function ProjectCard({ project, index = 0, onClick }) {
                             )}
                         </div>
                     </div>
-                    <h3 className="text-xl font-bold text-ink dark:text-white mb-3 group-hover:text-accent dark:group-hover:text-[#8AB4F8] transition-colors">
+                    <h3 className="text-lg font-bold text-ink dark:text-white mb-2 group-hover:text-accent dark:group-hover:text-[#8AB4F8] transition-colors">
                         {project.title}
                     </h3>
-                    <p className="text-ink-2 dark:text-[#9AA0A6] text-sm leading-relaxed mb-6 line-clamp-3">
+                    <p className="text-ink-2 dark:text-[#9AA0A6] text-sm leading-relaxed mb-4 line-clamp-2">
                         {project.description}
                     </p>
                 </div>
                 <div>
-                    <div className="flex flex-wrap gap-1.5 mb-6">
+                    <div className="flex flex-wrap gap-1.5 mb-4">
                         {project.techStack?.map((t) => (
-                            <span key={t} className="bg-surface-2 dark:bg-gray-800 text-ink dark:text-gray-300 text-xs font-medium px-3 py-1 rounded-lg border border-line dark:border-gray-700">
+                            <span key={t} className="bg-surface-2 dark:bg-gray-800 text-ink dark:text-gray-300 text-xs font-medium px-2.5 py-0.5 rounded-lg border border-line dark:border-gray-700">
                                 {t}
                             </span>
                         ))}

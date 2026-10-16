@@ -89,9 +89,8 @@ export default function Navbar() {
                     {/* Logo / Nama */}
                     <div 
                         onClick={() => navigate('/')} 
-                        className="font-bold text-base md:text-lg text-ink dark:text-white flex items-center gap-2 cursor-pointer transition-colors duration-300"
+                        className="font-bold text-base md:text-lg text-ink dark:text-white hover:text-accent dark:hover:text-white flex items-center gap-2 cursor-pointer transition-colors duration-300"
                     >
-                        <span className={`w-3 h-3 rounded-full inline-block transition-colors duration-300 ${isDarkMode ? 'bg-[#34A853]' : 'bg-[#4285F4]'}`}></span>
                         <span>d'wick.port</span>
                     </div>
 

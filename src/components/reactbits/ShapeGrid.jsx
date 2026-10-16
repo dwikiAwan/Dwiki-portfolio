@@ -27,8 +27,6 @@ const ShapeGrid = ({
     if (!canvas) return;
     const ctx = canvas.getContext('2d');
 
-    // `ctx.strokeStyle` / `ctx.fillStyle` hanya menerima warna konkret;
-    // `var(--x)` akan diabaikan diam-diam dan canvas jatuh ke warna default.
     const resolveColor = (value, fallback, label) => {
       const color = (value || '').trim();
       if (color && !color.includes('var(')) return color;
@@ -44,9 +42,6 @@ const ShapeGrid = ({
     const isTri = shape === 'triangle';
     const hexHoriz = squareSize * 1.5;
     const hexVert = squareSize * Math.sqrt(3);
-
-    // Offset di-snap ke pixel device supaya garis grid tetap tajam dan tidak
-    // "berkedip" antialiasing saat bergerak.
     const snapOffset = (value, modulo) => {
       const wrapped = ((value % modulo) + modulo) % modulo;
       const ratio = window.devicePixelRatio || 1;
@@ -201,8 +196,6 @@ const ShapeGrid = ({
     };
 
     const updateAnimation = (time) => {
-      // `speed` dibaca sebagai piksel per detik, bukan per frame, supaya
-      // kecepatan gerak sama di 60Hz maupun 120Hz.
       if (lastTime.current === null) lastTime.current = time;
       const elapsed = Math.min(time - lastTime.current, 64);
       lastTime.current = time;
@@ -254,8 +247,6 @@ const ShapeGrid = ({
       for (const [key] of targets) {
         if (!cellOpacities.current.has(key)) cellOpacities.current.set(key, 0);
       }
-      // Interpolasi juga berbasis waktu supaya jejak hover memudar dengan
-      // laju yang sama di 60Hz maupun 120Hz.
       const blend = 1 - Math.exp(-(elapsed / 1000) * trailFade * 6);
       for (const [key, opacity] of cellOpacities.current) {
         const target = targets.get(key) || 0;
@@ -269,8 +260,6 @@ const ShapeGrid = ({
       const rect = canvas.getBoundingClientRect();
       const mouseX = event.clientX - rect.left;
       const mouseY = event.clientY - rect.top;
-
-      // Logika kalkulasi posisi kursor grid...
       const offsetX = ((gridOffset.current.x % squareSize) + squareSize) % squareSize;
       const offsetY = ((gridOffset.current.y % squareSize) + squareSize) % squareSize;
       const adjustedX = mouseX - offsetX;

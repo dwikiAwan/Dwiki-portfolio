@@ -1,15 +1,16 @@
 import { useParams, Link } from 'react-router-dom';
 import { portfolioData } from '../data/portfoliodata';
-import { ArrowLeft, ExternalLink, AlertTriangle, Lightbulb, Wrench } from 'lucide-react'; // Hapus Github dari sini
+import { ArrowLeft, ExternalLink, AlertTriangle, Lightbulb, Wrench } from 'lucide-react';
+import GithubIcon from '../components/GithubIcon';
 import { motion } from 'framer-motion';
 
 export default function ProjectDetail() {
     const { id } = useParams();
     
-    // Ambil daftar proyek dari portfoliodata
+    // daftar proyek dari portfoliodata
     const projects = portfolioData?.projects || [];
     
-    // Cari proyek berdasarkan ID string/number atau indeks array jika id berupa angka
+    //proyek berdasarkan ID string/number atau indeks array jika id berupa angka
     let project = projects.find((p) => String(p.id) === String(id));
     if (!project && !isNaN(id)) {
         project = projects[Number(id)];
@@ -35,7 +36,7 @@ export default function ProjectDetail() {
             transition={{ duration: 0.5 }}
             className="max-w-4xl mx-auto px-6 py-16"
         >
-            {/* Tombol Kembali ke Arsip Proyek */}
+            {/* Tombol Kembali ke Arsip Pryek */}
             <Link to="/projects" className="inline-flex items-center gap-2 text-xs font-bold text-accent dark:text-[#8AB4F8] mb-8 hover:underline">
                 <ArrowLeft className="w-4 h-4" /> Kembali ke Daftar Arsip Proyek
             </Link>
@@ -54,6 +55,25 @@ export default function ProjectDetail() {
                     {project.description}
                 </p>
             </div>
+
+            {/* Galeri Screenshot: 3 foto per proyek */}
+            {project.images?.length > 0 && (
+                <div className="mb-10 grid grid-cols-1 sm:grid-cols-2 gap-6">
+                    {project.images.map((img, i) => (
+                        <figure
+                            key={img}
+                            className={`overflow-hidden rounded-[2rem] border border-line dark:border-gray-800 bg-surface/90 dark:bg-[#1E1E20]/90 shadow-sm ${i === 0 ? 'sm:col-span-2' : ''}`}
+                        >
+                            <img
+                                src={img}
+                                alt={`${project.title} - tangkapan layar ${i + 1}`}
+                                loading="lazy"
+                                className="w-full aspect-[16/10] object-cover"
+                            />
+                        </figure>
+                    ))}
+                </div>
+            )}
 
             {/* Bagian Studi Kasus: Tantangan & Solusi */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-10">
@@ -114,10 +134,8 @@ export default function ProjectDetail() {
                         rel="noopener noreferrer" 
                         className="px-6 py-3.5 bg-surface-2 dark:bg-gray-800 hover:bg-surface-3 dark:hover:bg-gray-700 text-ink dark:text-white font-bold rounded-xl text-xs transition-all shadow-sm border border-line dark:border-gray-700 flex items-center gap-2 cursor-pointer"
                     >
-                        {/* Menggunakan SVG inline untuk ikon GitHub */}
-                        <svg className="w-4 h-4 fill-current" viewBox="0 0 24 24">
-                            <path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/>
-                        </svg>
+                        {/* Ikon GitHub */}
+                        <GithubIcon className="w-4 h-4" />
                         <span>GitHub Repository</span>
                     </a>
                 )}

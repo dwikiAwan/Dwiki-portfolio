@@ -2,6 +2,104 @@
 
 export const articles = [
     {
+        id: "ip-prefix-cidr",
+        title: "IP Address, Prefix Length, dan Cara Membaca CIDR",
+        date: "Oktober 2026",
+        readTime: "7 min read",
+        tags: ["Networking", "IP Address"],
+        summary: "Alamat IPv4 itu 32 bit yang dipecah menjadi bagian jaringan dan bagian host. Prefix memberitahu berapa bit itu jaringan, dan semua perhitungan subnetting berangkat dari situ.",
+        content: [
+            { type: "p", text: "Alamat IPv4 ditulis sebagai empat oktet desimal yang dipisah titik, misalnya 192.168.10.10. Secara harfiah itu 32 bit: 11000000.10101000.00001010.00001010. Bentuk desimalnya hanya cara menulis supaya manusia lebih mudah dibaca." },
+            { type: "h", text: "Prefix menjawab pertanyaan siapa jaringan dan siapa rumah" },
+            { type: "p", text: "Subnet mask memberi tahu berapa bit pertama yang menjadi identitas jaringan. Kalau dituliskan /24, maka 24 bit pertama adalah jaringan dan 8 bit sisanya adalah host. Alamat jaringannya 192.168.10.0, cara paling sederhana untuk mendapatkan network address: bit jaringan apa adanya, bit host diubah menjadi nol." },
+            { type: "code", text: "192.168.10.10/24\n\n  network  : 192.168.10.0\n  broadcast: 192.168.10.255\n  mask     : 255.255.255.0\n  wildcard : 0.0.0.255\n  host     : 192.168.10.1 - 192.168.10.254" },
+            { type: "p", text: "Wildcard mask adalah kebalikan dari subnet mask, dipakai di perintah router untuk menentukan host yang boleh dicocokkan. Bit 255 menjadi 0 dan sebaliknya. Di sinilah subnetting berhenti terasa seperti matematika." },
+            { type: "h", text: "Rentang yang perlu dihafal" },
+            { type: "list", items: [
+                "10.0.0.0/8 - privat, dipakai di jaringan ISP dan data center besar.",
+                "172.16.0.0/12 - privat, mencakup 172.16 sampai 172.31.",
+                "192.168.0.0/16 - privat, paling umum di jaringan rumah dan laboratorium.",
+                "127.0.0.0/8 - loopback, selalu menunjuk ke mesin sendiri.",
+                "169.254.0.0/16 - APIPA, muncul sendiri saat DHCP gagal memberi alamat.",
+                "0.0.0.0 - unspecified, juga dipakai sebagai default route."
+            ]},
+            { type: "h", text: "Panjang prefix yang lazim dipakai" },
+            { type: "list", items: [
+                "/32 - satu host saja, dipakai untuk route spesifik.",
+                "/24 - 256 alamat, 254 host. Standar jaringan lokal.",
+                "/30 - 4 alamat, 2 host. Link point-to-point antar router.",
+                "/31 - 2 alamat, 0 host. RFC 3021, dipakai di link router sekarang."
+            ]},
+            { type: "h", text: "Perhitungan host tidak boleh lupa dua" },
+            { type: "p", text: "Jumlah host selalu 2^n - 2. Dua alamat dikecualikan: network address menandai awal blok, dan broadcast menandai akhir blok. Keduanya tidak bisa dipakai perangkat mana pun, jadi /24 bukan 256 host melainkan 254." },
+            { type: "code", text: "host = 2 ^ (32 - prefix) - 2\n\n  /24 -> 2^8 - 2 = 254 host\n  /26 -> 2^6 - 2 = 62 host\n  /30 -> 2^2 - 2 = 2 host" },
+            { type: "p", text: "IPv6 datang dengan 128 bit, ditulis sebagai delapan kelompok heksadesimal, dan tidak punya konsep broadcast sama sekali. Semua konsep di sini masih berlaku, hanya angkanya yang jauh lebih besar." }
+        ]
+    },
+    {
+        id: "subnetting",
+        title: "Subnetting dari Nol: Membagi Satu Jaringan Jadi Banyak",
+        date: "Oktober 2026",
+        readTime: "8 min read",
+        tags: ["Networking", "Subnetting"],
+        summary: "Subnetting memecah satu blok alamat besar menjadi beberapa jaringan kecil supaya alamat tidak terbuang dan segmentasi antar departemen tetap terjaga.",
+        content: [
+            { type: "p", text: "Dulu jaringan institutional hanya punya satu blok besar yang dipakai bersama tanpa batas. Sekarang setiap perangkat punya alamat, perangkat IoT makin banyak, dan tiap departemen butuh jaringan sendiri. Subnetting menjawab kebutuhan itu dengan memecah satu blok menjadi beberapa blok yang lebih kecil." },
+            { type: "h", text: "Langkah pertama: berapa subnet yang dipakai" },
+            { type: "p", text: "Bit dipinjam dari bagian host, bukan dari bagian jaringan, supaya identitas network address tetap bisa dibaca. Kalau butuh 4 subnet, kita perlu 2 bit tambahan karena 2^2 = 4. Setelah dipinjam, panjang prefix bertambah dan jumlah host berkurang." },
+            { type: "h", text: "Contoh: memecah 192.168.10.0/24 menjadi 4 subnet" },
+            { type: "p", text: "Butuh 4 subnet berarti pinjam 2 bit. Prefix menjadi /26, mask 255.255.255.192, wildcard 0.0.0.63. Ukuran tiap blok mengecil dari 256 menjadi 64 alamat." },
+            { type: "code", text: "Subnet  CIDR   Network         Broadcast       Host yang bisa dipakai\n1       /26    192.168.10.0    192.168.10.63    .1   - .62\n2       /26    192.168.10.64   192.168.10.127   .65  - .126\n3       /26    192.168.10.128  192.168.10.191   .129 - .190\n4       /26    192.168.10.192  192.168.10.255   .193 - .254" },
+            { type: "p", text: "Perhatikan subnet 1: prefix-nya /26, tapi nomor oktet keempatnya bukan sembarang angka. Host 192.168.10.5 masih berada di subnet 1, sedangkan 192.168.10.70 sudah masuk subnet 2. Batas antar subnet selalu kelipatan kelipatan ukuran blok, itu yang membuatnya bisa diprediksi." },
+            { type: "h", text: "VLSM: subnet dengan ukuran tidak sama rata" },
+            { type: "p", text: "VLSM memberi subnet sesuai kebutuhan masing-masing, bukan sama rata. Ruang staff butuh 500 host, ruang IT cukup 25, dan kamera cukup 2. Daripada memakai /24 utuh untuk semuanya, setiap kebutuhan dipinjamkan bit secara tidak sama." },
+            { type: "code", text: "Kebutuhan  Prefix  Mask              Rentang\n500 host     /23     255.255.254.0      192.168.0.0   - 192.168.1.255\n100 host     /25     255.255.255.128    192.168.2.0   - 192.168.2.127\n25 host      /27     255.255.255.224    192.168.2.128 - 192.168.2.159\n2 host       /30     255.255.255.252    192.168.2.160 - 192.168.2.163" },
+            { type: "h", text: "Langkah yang sering dilewatkan" },
+            { type: "list", items: [
+                "Selalu mulai dari kebutuhan host, bukan dari prefix yang ingin dipakai.",
+                "Subnet management untuk router atau switch tidak boleh dihitung sebagai host.",
+                "Sisakan 20 sampai 30 persen ruang kosong sebelum subnetting dianggap selesai.",
+                "Catat semuanya di satu tabel, jangan dihafal. Subnet yang tidak terdokumentasi akan melukai kita dua tahun kemudian."
+            ]},
+            { type: "p", text: "Di router Cisco, hasil subnetting diterjemahkan langsung ke perintah interface dengan subnet mask, dan ke perintah routing protokol dengan wildcard mask. Dua contoh di bawah memakai hasil subnetting pada bagian sebelumnya." },
+            { type: "code", text: "interface GigabitEthernet0/0\n ip address 192.168.10.62 255.255.255.192\n!\nrouter ospf 1\n network 192.168.10.0 0.0.0.63 area 0" },
+            { type: "p", text: "Alamat interface 192.168.10.62 dengan mask /26 terlihat seperti identitas terbesar di subnet 1, padahal .0 dan .63 sudah dipakai untuk jaringan dan broadcast. .62 adalah alamat host terbesar yang sah di subnet tersebut." }
+        ]
+    },
+    {
+        id: "osi-layer",
+        title: "7 Layer OSI sebagai Peta Troubleshooting Jaringan",
+        date: "Oktober 2026",
+        readTime: "7 min read",
+        tags: ["Networking", "OSI"],
+        summary: "Jaringan rusak selalu punya banyak suspect: DNS, ISP, firewall, router, driver Wi-Fi. OSI memberi urutan kerja yang tetap supaya kita tidak menguji hal yang sama berulang kali.",
+        content: [
+            { type: "p", text: "Saat koneksi lambat, daftar suspect selalu sama: DNS, ISP, firewall, router, driver Wi-Fi. Tanpa urutan kerja yang jelas, kita melompat-lompat dan menguji hal yang sama berulang kali. OSI Model memberi urutan tetap, dari bawah ke atas, supaya pencarian masalah punya urutan." },
+            { type: "h", text: "Tujuh layer dan tugasnya" },
+            { type: "list", items: [
+                "1 Physical - kabel, konektor, tegangan, SFP, collision domain.",
+                "2 Data Link - MAC address, frame Ethernet, switch, ARP, VLAN, STP.",
+                "3 Network - IP address, router, routing table, subnet, ICMP, TTL.",
+                "4 Transport - TCP dan UDP, port, handshake, checksum.",
+                "5 Session - socket, establishment dan pemutusan sesi, RPC.",
+                "6 Presentation - encoding, enkripsi TLS, kompresi, format data.",
+                "7 Application - HTTP, DNS, SMTP, SSH, aplikasi yang dipakai pengguna."
+            ]},
+            { type: "p", text: "Hafal pakai sangkal: Please Do Not Throw Sausage Pizza Away, dibaca dari atas ke bawah. Urutan ini bukan teori kosong, hampir semua kelas jaringan dan sertifikasi MikroTik memakai urutan yang sama saat menelusuri satu masalah." },
+            { type: "h", text: "Mencari masalah dari bawah ke atas" },
+            { type: "p", text: "Cara paling murah hampir selalu ada di layer paling bawah. Kalau kabel tidak terpasang, tidak ada gunanya mengatur routing di router. Mulai dari kabel, naik satu layer per satu, dan berhenti di layer pertama yang tidak bisa dilewati." },
+            { type: "code", text: "# Layer 1-2: apakah interface hidup?\nshow ip interface brief\nshow interfaces ethernet0/1\n\n# Layer 3: apakah ada alamat, rute, dan gateway?\nping 127.0.0.1\nping 192.168.10.1\nshow ip route\n\n# Layer 4: apakah port-nya terbuka?\ntelnet 192.168.10.10 80\nnc -zv 192.168.10.10 443\n\n# Layer 7: apakah namanya resolve dan jawabannya?\nnslookup contoh.com\ncurl -I https://contoh.com" },
+            { type: "h", text: "Membaca gejalanya" },
+            { type: "list", items: [
+                "Tidak bisa ping gateway - masalah layer 1 sampai 3, cek kabel, alamat IP, atau VLAN.",
+                "Bisa ping tapi port tertutup - masalah layer 4, firewall atau service belum jalan.",
+                "Port terbuka tapi halaman gagal - masalah layer 7, cek DNS, TLS, atau aplikasinya.",
+                "Ping ke 169.254.x.x berarti DHCP gagal, perangkat tidak mendapat alamat sama sekali."
+            ]},
+            { type: "p", text: "Troubleshooting yang baik selalu hasilnya ditulis. Satu file berisi tanggal, topologi saat itu, perintah yang dijalankan, dan keluarannya. Tanpa catatan, masalah yang sama akan datang lagi enam bulan kemudian dengan nama yang berbeda." }
+        ]
+    },
+    {
         id: "react-19-purity",
         title: "Mengatasi Error Purity dan Cascading Renders pada React 19",
         date: "Oktober 2026",

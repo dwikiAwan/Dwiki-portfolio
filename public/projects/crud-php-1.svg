@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 500" width="800" height="500" role="img" aria-label="Project - screenshot 1">
+<rect width="800" height="500" fill="#ffffff"/>
+<rect x="1" y="1" width="798" height="498" fill="none" stroke="#e5e7eb" stroke-width="2"/>
+<rect x="40" y="40" width="200" height="12" rx="6" fill="#f3f4f6"/>
+<rect x="40" y="66" width="140" height="12" rx="6" fill="#f3f4f6"/>
+<rect x="40" y="92" width="170" height="12" rx="6" fill="#f3f4f6"/>
+<text x="400" y="268" fill="#d1d5db" font-family="system-ui,sans-serif" font-size="52" font-weight="700" text-anchor="middle">PROJECT</text>
+<text x="400" y="308" fill="#e5e7eb" font-family="ui-monospace,monospace" font-size="18" text-anchor="middle">screenshot 1 belum di update</text>
+<rect x="330" y="380" width="140" height="10" rx="5" fill="#f3f4f6"/>
+</svg>

@@ -27,10 +27,10 @@ import {
 } from '../config/env';
 import { ok, warn, err, numFlag, listFlag, boolFlag, lines } from './engine';
 
-export const VERSION = '3.0.0';
+export const VERSION = '1.0.0';
 const CV_PATH = '/Resume_dwikikurniawan.pdf';
 
-// ---------- utilitas format ------------------------------------------------
+//utilitas format
 
 const pad = (s, n) => {
     const str = String(s);

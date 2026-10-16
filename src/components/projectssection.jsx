@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate, Link } from 'react-router-dom';
-import { ArrowRight, ExternalLink, Code } from 'lucide-react';
+import { ChevronsRight, ExternalLink } from 'lucide-react';
+import GithubIcon from './GithubIcon';
 import { portfolioData } from '../data/portfoliodata';
 import ProjectCard from './ProjectCard';
 
@@ -20,7 +21,7 @@ export default function ProjectsSection() {
     return (
         <section id="projects" className="pt-6 pb-20 px-6 max-w-6xl mx-auto scroll-mt-28 transition-colors duration-300">
             <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="text-center mb-10">
-                <span className="text-xs font-bold text-accent dark:text-[#8AB4F8] bg-accent-wash dark:bg-[#174EA6]/20 px-4 py-1.5 rounded-full uppercase tracking-wider border border-accent-line dark:border-[#174EA6]/50">
+                <span className="inline-block text-xs font-bold text-white bg-accent dark:bg-[#174EA6] px-4 py-1.5 rounded-full uppercase tracking-wider">
                     Project Portfolio
                 </span>
                 <h2 className="text-3xl md:text-4xl font-extrabold text-ink dark:text-white mt-4">Featured Projects</h2>
@@ -54,7 +55,7 @@ export default function ProjectsSection() {
             <div className="text-center">
                 <Link to="/projects" className="inline-flex items-center gap-2 px-8 py-4 rounded-2xl bg-primary hover:bg-primary-hover text-white font-bold text-sm shadow-md transition-all hover:scale-105">
                     <span>Lihat Semua Daftar Proyek</span>
-                    <ArrowRight className="w-4 h-4" />
+                    <ChevronsRight className="w-4 h-4" />
                 </Link>
             </div>
 
@@ -106,7 +107,7 @@ export default function ProjectsSection() {
                                             rel="noopener noreferrer"
                                             className="flex-1 inline-flex items-center justify-center gap-2 py-3 bg-surface-2 dark:bg-gray-800 text-ink dark:text-gray-200 font-semibold rounded-2xl border border-line dark:border-gray-700 hover:bg-surface-3 dark:hover:bg-gray-700 transition-colors text-sm"
                                         >
-                                            <Code className="w-4 h-4" />
+                                            <GithubIcon className="w-4 h-4" />
                                             Source Code
                                         </a>
                                     )}

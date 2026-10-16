@@ -1,10 +1,3 @@
-/**
- * Korpus data untuk mesin pencari & perintah terminal.
- *
- * Prinsip: ini satu-satunya tempat yang tahu "data apa saja yang ada di
- * proyek". Semua dokumen diturunkan dari sumber aslinya (src/data,
- * src/config, routing aplikasi), jadi tidak ada duplikasi yang bisa basi.
- */
 
 import { portfolioData } from '../data/portfoliodata';
 import { articles } from '../data/articles';

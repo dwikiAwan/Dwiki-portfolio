@@ -1,11 +1,5 @@
 /**
  * Parser dan runner perintah terminal.
- *
- * Mendukung sintaks CLI sungguhan:
- *   wick projects                    perintah sederhana
- *   wick find react --type=project   flag --key=value
- *   wick articles | wick grep react  pipeline antar perintah
- *   wick help nav                    dokumentasi satu perintah
  */
 
 export const PREFIX = 'wick';
@@ -15,11 +9,6 @@ export const ok = (out, extra = {}) => ({ out, tone: 'ok', ...extra });
 export const warn = (out) => ({ out, tone: 'warn' });
 export const err = (out) => ({ out, tone: 'error' });
 
-/**
- * Uraikan satu segmen perintah.
- * Mengembalikan { name, rest, args, phrase, flags } dengan argumen
- * multi-kata dipertahankan sebagai `phrase` agar bisa dipakai di pipeline.
- */
 export function tokenize(input) {
     const raw = String(input || '').trim();
     if (!raw) return { name: '', rest: '', args: [], phrase: '', flags: {} };
@@ -76,7 +65,7 @@ export const numFlag = (flags, key, fallback) => {
     return Number.isFinite(n) && n > 0 ? Math.floor(n) : fallback;
 };
 
-/** "--type=project,article" -> ['project', 'article'] */
+
 export const listFlag = (flags, key) => {
     const v = flags[key];
     if (v === undefined || v === true) return null;
@@ -85,5 +74,5 @@ export const listFlag = (flags, key) => {
 
 export const boolFlag = (flags, key) => flags[key] !== undefined && flags[key] !== 'false';
 
-/** Bar kosong diabaikan saat menghitung/menyaring output. */
+
 export const lines = (out) => String(out || '').split('\n').filter((l) => l.trim().length);

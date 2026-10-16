@@ -16,11 +16,7 @@ export default function Hero() {
                 className="relative z-10 w-full max-w-5xl mx-auto text-center"
             >
                 {/* Material-style Badge */}
-                <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-accent-wash dark:bg-[#174EA6]/20 text-accent dark:text-[#8AB4F8] text-sm font-medium mb-8 border border-accent-line dark:border-[#174EA6]/50 transition-colors duration-300">
-                    <span className="relative flex h-2 w-2">
-                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#4285F4] opacity-75"></span>
-                        <span className="relative inline-flex rounded-full h-2 w-2 bg-[#4285F4]"></span>
-                    </span>
+                <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-accent dark:bg-[#174EA6] text-white text-sm font-medium mb-8 border border-transparent transition-colors duration-300">
                     Fresh graduate • Informatics Engineering
                 </div>
 

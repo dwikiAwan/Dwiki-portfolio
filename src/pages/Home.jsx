@@ -3,7 +3,7 @@ import About from '../components/About';
 import Growth from '../components/Growth';
 import ProjectsSection from '../components/projectssection';
 import ContactSection from '../components/contactsection';
-import LiveComment from '../components/LiveComment'; // <--- Impor widget chat melayang
+import LiveComment from '../components/LiveComment'; // 
 
 export default function Home() {
     return (

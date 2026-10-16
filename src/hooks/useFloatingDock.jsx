@@ -3,8 +3,7 @@ import { useContext, useState, useMemo, useCallback } from 'react';
 import { FloatingDockContext } from './FloatingDockContext';
 
 /**
- * Terminal dan live chat saling eksklusif: hanya satu boleh terbuka.
- * Membuka live chat menutup terminal, dan sebaliknya.
+ *Membuka live chat menutup terminal, dan sebaliknya.
  */
 export function FloatingDockProvider({ children }) {
     const [terminalOpen, setTerminalOpen] = useState(false);

@@ -23,7 +23,6 @@ const writeJSON = (key, value) => {
     try { localStorage.setItem(key, JSON.stringify(value)); } catch { /* storage diblokir: abaikan */ }
 };
 
-// Cache ringan di localStorage (pola sama seperti useLiveArticles) supaya chat
 // tidak kosong setelah refresh saat Firestore lambat atau read-nya gagal.
 const readCache = () => {
     try {
@@ -112,7 +111,7 @@ export default function useGuestbook() {
         }
     }, []);
 
-    // Satu reaksi per jenis per pesan per browser (pagar tipis, bukan pengaman utama)
+    // Satu reaksi per jenis per pesan per browser
     const react = useCallback(async (id, type) => {
         if (!db || !REACTION_KEYS.includes(type)) return;
         const key = `${id}:${type}`;

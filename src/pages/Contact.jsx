@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { BookOpen, ChevronLeft, ChevronRight, Check, Copy, FileText, Flame, Handshake, Mail, Rocket, Send, ThumbsUp, TriangleAlert, Zap } from 'lucide-react';
+import { BookOpen, ChevronLeft, ChevronRight, Check, Copy, FileText, Flame, Mail, Radio, Send, ThumbsUp, TriangleAlert, Zap, CodeXml } from 'lucide-react';
 import { portfolioData } from '../data/portfoliodata';
 import { safeUrl } from '../config/env';
 import { AVATARS } from '../data/avatars';
@@ -39,8 +39,6 @@ export default function Contact() {
 
     const totalPages = Math.ceil(messages.length / ITEMS_PER_PAGE);
     const currentMessages = messages.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE);
-    // safeUrl menyingkirkan URL non-http(s) supaya data yang tidak valid
-    // tidak pernah jadi href javascript:/data:.
     const socials = SOCIAL.map((s) => ({ ...s, href: safeUrl(portfolioData.socials?.[s.key]) })).filter((s) => s.href);
 
     const handleCopyEmail = () => {
@@ -83,17 +81,13 @@ export default function Contact() {
 
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}
                 className={`${card} rounded-[2.5rem] p-8 md:p-14 text-center`}>
-                <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-success-wash dark:bg-emerald-950/40 text-success-ink dark:text-emerald-400 text-xs font-bold uppercase tracking-wider mb-6 border border-success-line dark:border-emerald-800">
-                    <span className="relative flex h-2 w-2">
-                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                        <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
-                    </span>
+                <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-success-solid text-white text-xs font-bold uppercase tracking-wider mb-6 border border-transparent">
                     Ready to Build Cool Stuff
-                    <Rocket className="w-3.5 h-3.5 shrink-0" aria-hidden="true" />
+                    <Radio className="w-3.5 h-3.5 shrink-0" aria-hidden="true" />
                 </div>
                 <h1 className="text-3xl md:text-5xl font-extrabold text-ink dark:text-white tracking-tight mb-4">
-                    Let's Make Things Happen.
-                    <Handshake className="inline w-9 h-9 md:w-11 md:h-11 ml-1 align-[-3px]" aria-hidden="true" />
+                    Let's Make Things Happen
+                    <CodeXml className="inline w-9 h-9 md:w-11 md:h-11 ml-1 align-[-3px]" aria-hidden="true" />
                 </h1>
                 <p className="text-ink-2 dark:text-[#9AA0A6] mt-2 max-w-lg mx-auto text-base md:text-lg leading-relaxed mb-10">
                     Lagi cari tim untuk membangun web, mobile, cloud, sampai jaringan? Hit me up, mari ngobrol santai dan build proyek bareng!
@@ -158,10 +152,6 @@ export default function Contact() {
 
                 <div className="mb-8 p-4 bg-surface-2/80 dark:bg-black/40 rounded-2xl border border-line dark:border-gray-800 overflow-hidden">
                     <div className="flex items-center gap-2 mb-3">
-                        <span className="relative flex h-2 w-2">
-                            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
-                            <span className="relative inline-flex rounded-full h-2 w-2 bg-red-500"></span>
-                        </span>
                         <span className="text-xs font-bold uppercase tracking-wider text-ink-3 dark:text-gray-400">Live Visitor Stream</span>
                     </div>
                     <div className="overflow-hidden whitespace-nowrap w-full">

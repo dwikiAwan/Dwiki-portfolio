@@ -1,15 +1,3 @@
-/**
- * Satu-satunya pintu masuk untuk nilai environment.
- *
- * Aturan main:
- * 1. Nilai asli hanya boleh hidup di file yang di-ignore git (.env, .env.local).
- * 2. Apa pun yang keluar dari modul ini ke UI/terminal HARUS lewat mask(),
- *    bukan nilai mentah.
- * 3. Jangan pernah console.log nilai aslinya — cukup status ter-mask.
- */
-
-// Kunci yang boleh dibaca aplikasi. Kalau butuh menambah, daftarkan di sini
-// supaya tetap bisa diaudit lewat `wick env`.
 const SCHEMA = [
     { key: 'VITE_FIREBASE_API_KEY', secret: true, required: true, desc: 'Firebase Web API key' },
     { key: 'VITE_FIREBASE_AUTH_DOMAIN', secret: true, required: true, desc: 'Firebase auth domain' },
@@ -23,10 +11,6 @@ const SCHEMA = [
     { key: 'VITE_CONTACT_EMAIL', secret: false, required: false, desc: 'Email kontak (fallback)' },
 ];
 
-// WAJIB ditulis eksplisit satu per satu. Akses `import.meta.env[key]`
-// (dinamis) membuat Vite menyuntikkan SELURUH objek env ke bundle, termasuk
-// VITE_FIREBASE_APPCHECK_DEBUG_TOKEN yang seharusnya tidak pernah masuk browser.
-// Daftar eksplisit = hanya kunci di sini yang bisa bocor ke bundle.
 const STATIC_ENV = {
     VITE_FIREBASE_API_KEY: import.meta.env.VITE_FIREBASE_API_KEY,
     VITE_FIREBASE_AUTH_DOMAIN: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
@@ -45,8 +29,7 @@ const raw = (key) => {
     return typeof v === 'string' ? v.trim() : v == null ? '' : String(v);
 };
 
-// Hanya http/https yang diizinkan. Menolak javascript:, data:, dan vbscript:
-// mencegah URL dari env atau data eksternal jadi vektor XSS saat dipakai di
+// Hanya http/https yang diizinkan. Menolak javascript:, data:, dan vbscript: mencegah URL dari env atau data eksternal jadi vektor XSS saat dipakai di
 // href/src. Input tidak valid -> string kosong, bukan url aslinya.
 export const safeUrl = (value) => {
     try {
@@ -79,8 +62,6 @@ export const envReport = () =>
             required,
             secret,
             set: value.length > 0,
-            // Kunci secret ditampilkan sebagai TERISI/kosong saja; kunci
-            // non-secret tetap disensor supaya output terminal aman di-share.
             value: mask(value, secret),
         };
     });
@@ -96,7 +77,7 @@ export const firebaseEnv = {
     appId: raw('VITE_FIREBASE_APP_ID'),
 };
 
-/** URL situs: hanya http/https yang boleh, sisanya ditolak. */
+/*hanya http/https yang boleh, sisanya ditolak. */
 export const siteUrl = () => safeUrl(raw('VITE_SITE_URL'));
 export const contactEmailFallback = () => raw('VITE_CONTACT_EMAIL');
 

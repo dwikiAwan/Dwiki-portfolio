@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
-import { Clipboard, Handshake, MapPin, PartyPopper, Rocket, Mail, Target, Wrench, Zap } from 'lucide-react';
+import { Clipboard, Handshake, MapPin, PartyPopper, Mail, Target, Wrench, Zap } from 'lucide-react';
 import { portfolioData } from '../data/portfoliodata';
 
 export default function ContactSection() {
@@ -28,13 +28,9 @@ export default function ContactSection() {
                     
                     {/* 1. STATUS BAR & QUICK STATS */}
                     <div className="flex flex-col md:flex-row justify-between items-center gap-4 mb-8 pb-6 border-b border-line dark:border-gray-800">
-                        <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-success-wash dark:bg-emerald-950/40 text-success-ink dark:text-emerald-400 text-xs font-bold uppercase tracking-wider border border-success-line dark:border-emerald-800">
-                            <span className="relative flex h-2 w-2">
-                                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                                <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
-                            </span>
+                        <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-success-solid text-white text-xs font-bold uppercase tracking-wider border border-transparent">
                             Open for Remote & Full-time Work
-                            <Rocket className="w-3.5 h-3.5 shrink-0" aria-hidden="true" />
+                            <Handshake className="w-3.5 h-3.5 shrink-0" aria-hidden="true" />
                         </div>
                         <div className="text-xs text-ink-3 dark:text-gray-400 font-mono flex items-center gap-1.5">
                             <MapPin className="w-3.5 h-3.5 shrink-0" aria-hidden="true" />
@@ -46,7 +42,6 @@ export default function ContactSection() {
                     <div className="text-center max-w-2xl mx-auto mb-10">
                         <h2 className="text-3xl md:text-4xl font-extrabold text-ink dark:text-white tracking-tight mb-3">
                             Let's Build Something Epic Together.
-                            <Handshake className="inline w-7 h-7 ml-1 align-[-2px]" aria-hidden="true" />
                         </h2>
                         <p className="text-ink-2 dark:text-[#9AA0A6] text-sm md:text-base leading-relaxed">
                             Punya ide aplikasi, butuh kolaborasi backend/frontend, atau ingin ngobrol seputar arsitektur web? Mari wujudkan lewat ekosistem yang solid.

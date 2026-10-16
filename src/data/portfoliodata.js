@@ -7,7 +7,7 @@ export const portfolioData = {
     about: "Lulusan S1 Teknik Informatika dengan ketertarikan mendalam pada pengembangan perangkat lunak modern, arsitektur web, dan sistem berbasis teknologi Google.",
     email: "dwikikurniawan0002@gmail.com",
 
-    // TODO: isi URL profil asli. Tombol yang URL-nya kosong tidak akan ditampilkan.
+    // social connect
     socials: {
         github:  "https://github.com/dwikiAwan",    
         linkedin: "https://www.linkedin.com/in/dwiki-awan/",   
@@ -22,10 +22,10 @@ export const portfolioData = {
             dotColor: "bg-[#4285F4]",
             textColor: "text-[#4285F4] dark:text-[#8AB4F8]",
             skills: [
-                { name: "React & Vite", level: 90, icon: "zap" },
-                { name: "Tailwind CSS v4", level: 88, icon: "palette" },
-                { name: "Laravel", level: 70, icon: "wrench" },
-                { name: "JavaScript / ES6+", level: 85, icon: "code" }
+                { name: "React JS", level: 90, icon: "zap", slug: "react", url: "https://react.dev" },
+                { name: "Tailwind CSS v4", level: 88, icon: "palette", slug: "tailwindcss", url: "https://tailwindcss.com" },
+                { name: "Laravel", level: 70, icon: "wrench", slug: "laravel", url: "https://laravel.com" },
+                { name: "JavaScript", level: 85, icon: "code", slug: "javascript", url: "https://developer.mozilla.org/en-US/docs/Web/JavaScript" }
             ]
         },
         {
@@ -34,9 +34,11 @@ export const portfolioData = {
             dotColor: "bg-[#34A853]",
             textColor: "text-success-ink dark:text-[#81C995]",
             skills: [
-                { name: "Kotlin / Java", level: 82, icon: "bot" },
-                { name: "Android Studio", level: 80, icon: "smartphone" },
-                { name: "Mobile UI Design", level: 78, icon: "sparkles" }
+                { name: "Kotlin & Jetpack Compose", level: 90, icon: "bot", slug: "kotlin", url: "https://kotlinlang.org" },
+                { name: "React Native", level: 60, icon: "code", slug: "react", url: "https://reactnative.dev" },
+                { name: "Android Studio", level: 80, icon: "smartphone", slug: "androidstudio", url: "https://developer.android.com/studio" },
+                { name: "Mobile UI Design", level: 70, icon: "sparkles" }
+
             ]
         },
         {
@@ -45,9 +47,22 @@ export const portfolioData = {
             dotColor: "bg-[#FBBC05]",
             textColor: "text-warn-ink dark:text-[#FDE293]",
             skills: [
-                { name: "Google Cloud Platform (GCP)", level: 75, icon: "cloud" },
-                { name: "Cisco Routing & Switching", level: 85, icon: "globe" },
-                { name: "MikroTik Administration", level: 82, icon: "plug" }
+                { name: "Google Cloud Platform (GCP)", level: 75, icon: "cloud", slug: "googlecloud", url: "https://cloud.google.com" },
+                { name: "Cisco Routing & Switching", level: 85, icon: "globe", slug: "cisco", url: "https://www.cisco.com" },
+                { name: "MikroTik Administration", level: 82, icon: "plug", slug: "mikrotik", url: "https://mikrotik.com" },
+                { name: "IP Configuration", level: 90, icon: "network" },
+                { name: "Instalasi Topologi Jaringan", level: 90, icon: "network" }
+            ]
+        },
+        {
+            category: "Database",
+            accentColor: "from-[#4285F4] to-[#0D652D]",
+            dotColor: "bg-[#4285F4]",
+            textColor: "text-accent dark:text-[#8AB4F8]",
+            skills: [
+                { name: "Firebase", level: 88, icon: "database", slug: "firebase", url: "https://firebase.google.com" },
+                { name: "MySQL", level: 85, icon: "database", slug: "mysql", url: "https://www.mysql.com" },
+                { name: "PostgreSQL", level: 78, icon: "database", slug: "postgresql", url: "https://www.postgresql.org" }
             ]
         }
     ],
@@ -70,6 +85,18 @@ export const portfolioData = {
         period: "2025 - Sekarang",
         title: "Pengembangan Portofolio & Profesional",
         description: "Membangun portofolio proyek nyata, mengasah skill teknis, dan berkolaborasi dalam tim untuk menyiapkan karier profesional di bidang software engineering."
+    },
+    {
+        period: "2023 - 2024",
+        title: "Divisi Akademik",
+        institution: "HIMAFIT (Himpunan Mahasiswa Teknik Informatika)",
+        description: "Mengelola urusan akademik himpunan: administrasi dan penjadwalan mata kuliah, koordinasi dengan dosen, serta program pendampingan belajar bagi mahasiswa Teknik Informatika."
+    },
+    {
+        period: "2024",
+        title: "Bangkit Academy",
+        institution: "Cohort Cloud Computing 2024",
+        description: "Mengikuti program Cloud Computing bersama Google Skills Boost dan mitra industri, mencakup provisioning infrastruktur, jaringan, keamanan cloud, hingga capstone project."
     },
     {
         period: "2023 - 2026",
@@ -108,6 +135,7 @@ export const portfolioData = {
             problem: "Portofolio statis umumnya kaku dan membuat rekruter sulit memahami kemampuan teknis seorang developer.",
             solution: "Membangun SPA berbasis komponen React dengan Tailwind CSS, Framer Motion, React Router, dan guestbook Firebase Firestore real-time, dilengkapi CLI 'wick' untuk menjelajah data.",
             techStack: ["React", "Vite", "Tailwind CSS", "Framer Motion", "Firebase"],
+            images: ["/projects/dwekfolio-1.svg", "/projects/dwekfolio-2.svg", "/projects/dwekfolio-3.svg"],
             liveUrl: "",
             githubUrl: "https://github.com/dwikiAwan/Dwiki-portfolio"
         },
@@ -119,6 +147,7 @@ export const portfolioData = {
             problem: "Pembelajaran matematika pecahan untuk siswa kelas 5 SD cenderung monoton sehingga minat dan daya retensi belajar menurun.",
             solution: "Merancang dan membangun aplikasi Android native dengan Jetpack Compose serta pendekatan gamifikasi (poin, level, tantangan) agar proses belajar lebih menarik dan interaktif.",
             techStack: ["Android", "Kotlin", "Jetpack Compose", "Firebase"],
+            images: ["/projects/fraction-app-1.svg", "/projects/fraction-app-2.svg", "/projects/fraction-app-3.svg"],
             liveUrl: "",
             githubUrl: "https://github.com/dwikiAwan/FranctionApp"
         },
@@ -130,6 +159,7 @@ export const portfolioData = {
             problem: "Model machine learning di sisi server harus melayani request dari aplikasi mobile secara stabil, scalable, dan konsisten antar lingkungan.",
             solution: "Mengkontainerisasi layanan dengan Docker, mengarsipkan arsitektur serverless di Google App Engine, dan mendokumentasikan RESTful API untuk pipeline ML dan tim Android.",
             techStack: ["Python", "FastAPI", "Node.js", "Docker", "Google App Engine"],
+            images: ["/projects/ml-cloud-capstone-1.svg", "/projects/ml-cloud-capstone-2.svg", "/projects/ml-cloud-capstone-3.svg"],
             liveUrl: "",
             githubUrl: "https://github.com/dwikiAwan/submission-Penerapan-Machine-Learning-dengan-Google-Cloud"
         },
@@ -141,6 +171,7 @@ export const portfolioData = {
             problem: "Model machine learning perlu endpoint yang rapi agar hasil prediksi bisa dikonsumsi aplikasi mobile dengan format yang konsisten.",
             solution: "Membangun service API backend sebagai penghubung antara pipeline machine learning dan konsumen aplikasi mobile.",
             techStack: ["JavaScript", "Node.js", "Machine Learning"],
+            images: ["/projects/asclepius-server-1.svg", "/projects/asclepius-server-2.svg", "/projects/asclepius-server-3.svg"],
             liveUrl: "",
             githubUrl: "https://github.com/dwikiAwan/asclepius-server"
         },
@@ -152,6 +183,7 @@ export const portfolioData = {
             problem: "Menyimpan dan menyajikan data buku butuh backend yang konsisten dan mudah di-deploy tanpa mengelola server secara manual.",
             solution: "Membangun REST API Bookshelf di Node.js lalu mendeploy-nya ke layanan Google Cloud dengan praktik arsitektur cloud yang baik.",
             techStack: ["JavaScript", "Node.js", "Google Cloud"],
+            images: ["/projects/bookshelf-api-1.svg", "/projects/bookshelf-api-2.svg", "/projects/bookshelf-api-3.svg"],
             liveUrl: "",
             githubUrl: "https://github.com/dwikiAwan/BookshelfAPI_backend-with-Google-Cloud"
         },
@@ -163,6 +195,7 @@ export const portfolioData = {
             problem: "Pemula sering belum memahami hubungan antara CRUD, basis data relasional, dan pemrosesan form.",
             solution: "Membangun aplikasi CRUD PHP dengan MySQL yang memisahkan operasi create, read, update, delete pada satu sumber data.",
             techStack: ["PHP", "MySQL"],
+            images: ["/projects/crud-php-1.svg", "/projects/crud-php-2.svg", "/projects/crud-php-3.svg"],
             liveUrl: "",
             githubUrl: "https://github.com/dwikiAwan/CRUD-php"
         }

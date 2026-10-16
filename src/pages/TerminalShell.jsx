@@ -14,12 +14,12 @@ export default function TerminalShell() {
                         </p>
                     </div>
                     <p className="text-[11px] text-ink-3 dark:text-gray-500 shrink-0">
-                        Ketik <code className="text-[#34A853]">wick help</code> untuk daftar perintah,{' '}
-                        <code className="text-[#34A853]">wick help &lt;perintah&gt;</code> untuk detail.
+                        Ketik <code className="text-success-ink dark:text-[#34A853]">wick help</code> untuk daftar perintah,{' '}
+                        <code className="text-success-ink dark:text-[#34A853]">wick help &lt;perintah&gt;</code> untuk detail.
                     </p>
                 </div>
 
-                <div className="flex-1 min-h-0 flex flex-col rounded-2xl border border-gray-700 shadow-2xl overflow-hidden">
+                <div className="flex-1 min-h-0 flex flex-col rounded-2xl bg-[#18181b] dark:bg-[#121212] border border-gray-700 shadow-2xl overflow-hidden">
                     <div className="px-4 py-3 flex items-center gap-2 border-b border-gray-800 text-white shrink-0">
                         <span className="w-3 h-3 rounded-full bg-[#EA4335]" />
                         <span className="w-3 h-3 rounded-full bg-[#FBBC05]" />

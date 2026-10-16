@@ -29,11 +29,8 @@ const TONE_CLASS = {
     dim: 'text-gray-500',
 };
 
-/**
- * Warna sintaks untuk baris perintah bash.
- *
- * Dipisah dari `TONE_CLASS` karena satu baris perintah berisi beberapa warna:
- * prompt, nama perintah, flag, operator pipeline, dan argumen.
+/*
+ prompt, nama perintah, flag, operator pipeline, dan argumen.
  */
 const SYNTAX_CLASS = {
     prompt: 'text-[#34A853] font-bold',
@@ -43,7 +40,6 @@ const SYNTAX_CLASS = {
     word: 'text-white',
 };
 
-/** Pecah baris perintah menjadi potongan berwarna, spasi diwariskan apa adanya. */
 function tokenizeCommand(raw) {
     const quoted = /^["'].*["']$/;
     return raw
@@ -60,10 +56,7 @@ function tokenizeCommand(raw) {
         });
 }
 
-/**
- * Argumen yang diharapkan tiap perintah, dipakai untuk Tab completion.
- * Sengaja ditulis manual: daftar ini soal UX, bukan sumber kebenaran data.
- */
+
 const commandArgs = (cmd) => {
     if (!cmd) return [];
     if (cmd.name === 'nav') return ['to', ...NAV_KEYS, ...PROJECT_IDS];

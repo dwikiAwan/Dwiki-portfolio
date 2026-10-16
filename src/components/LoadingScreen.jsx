@@ -1,7 +1,8 @@
 import { useState, useEffect, lazy, Suspense } from 'react';
 import { motion } from 'framer-motion';
-import { Cog, Moon, Palette, Rocket, Sun } from 'lucide-react';
-// three.js (~600 KB) hanya dimuat saat loading screen tampil
+import { Cog, Moon, Palette, Ghost, Sun, ChevronsLeftRightEllipsis } from 'lucide-react';
+
+
 const MagicRingsLazy = lazy(() => import('./reactbits/MagicRings'));
 
 function MagicRings(props) {
@@ -28,13 +29,12 @@ const codeSnippets = [
 ];
 
 export default function LoadingScreen({ onFinish }) {
-    // Pilihan vibe selalu ditampilkan, apa pun tema yang tersimpan sebelumnya
+    // Pilihan vibe selalu ditampilkan
     const [step, setStep] = useState('select-theme');
     const [selectedTheme, setSelectedTheme] = useState(getInitialTheme);
     const [currentLine, setCurrentLine] = useState(0);
     const [isSplitting, setIsSplitting] = useState(false);
 
-    // Terapkan tema tersimpan lebih dulu supaya splash tidak berkedip saat mount
     useEffect(() => {
         applyTheme(getInitialTheme());
     }, []);
@@ -173,6 +173,9 @@ export default function LoadingScreen({ onFinish }) {
                                     Dark Mode
                                 </button>
                             </div>
+                             <p className="text-[11px] font-sans text-ink-3 dark:text-gray-400 mb-4">
+                                Dark Mode sangat direkomendasikan
+                            </p>
 
                             <p className="text-[11px] font-sans text-ink-3 dark:text-gray-400 mb-4">
                                 Preview langsung aktif. Bisa diubah kapan saja lewat toggle di navbar.
@@ -247,7 +250,7 @@ export default function LoadingScreen({ onFinish }) {
                                         className="mt-4 pt-3 border-t border-line dark:border-gray-700 flex items-center justify-center gap-2 text-base font-bold text-success-ink"
                                     >
                                         <span>Selamat Datang!</span>
-                                        <Rocket className="w-6 h-6 animate-bounce" aria-hidden="true" />
+                                        <Ghost className="w-6 h-6 animate-bounce" aria-hidden="true" />
                                     </motion.div>
                                 )}
                             </div>
@@ -255,7 +258,7 @@ export default function LoadingScreen({ onFinish }) {
                             <div className="mt-6 flex justify-between items-center text-xs text-ink-3 dark:text-gray-400 pt-3 border-t border-line dark:border-gray-700 font-bold">
                                 <span>{currentLine === codeSnippets.length - 1 ? "Status: Ready!" : "Status: Compiling"}</span>
                                 {currentLine === codeSnippets.length - 1
-                                    ? <Rocket className="w-4 h-4" aria-hidden="true" />
+                                    ? <ChevronsLeftRightEllipsis className="w-4 h-4" aria-hidden="true" />
                                     : <Cog className="w-4 h-4 animate-spin" aria-hidden="true" />}
                             </div>
                         </div>

@@ -1,6 +1,6 @@
 import {
     Zap, Palette, Wrench, FileCode2, Bot, Smartphone, Sparkles,
-    Cloud, Globe, Plug, CircleHelp,
+    Cloud, Globe, Plug, Database, Network, CircleHelp,
 } from 'lucide-react';
 
 const ICONS = {
@@ -14,6 +14,8 @@ const ICONS = {
     cloud: Cloud,
     globe: Globe,
     plug: Plug,
+    database: Database,
+    network: Network,
 };
 
 /** Mengembalikan komponen icon**/

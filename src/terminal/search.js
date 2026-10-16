@@ -1,10 +1,7 @@
 /**
  * Mesin pencari miniature untuk terminal `wick`.
  *
- * Dirancang untuk korpus kecil (puluhan dokumen), tapi tetap memakai cara
- * yang benar: tokenisasi, inverted index, pembobotan field, skor akin BM25,
- * plus toleransi typo. Jadi menambah data di src/data otomatis langsung
- * terindeks tanpa perlu mendaftarkan kata kunci baru.
+ * Dirancang untuk korpus kecil
  */
 
 const STOPWORDS = new Set([
@@ -39,12 +36,6 @@ const escapeRe = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 
 /**
  * Tokenisasi: hanya kata utuh yang masuk query.
- *
- * Prefix TIDAK dimasukkan sebagai token terpisah. Kalau dia ikut, satu
- * kata kunci dihitung dua kali (meny-google "react" jadi 2 token), dan
- * suffix pendek ikut memaksa setiap dokumen mencocokkan. Pencarian
- * search-as-you-type ditangani di resolveCandidates sebagai tingkat
- * kecocokan tersendiri, bukan dengan menggandakan token.
  */
 export const tokenize = (value) => {
     const words = [];

@@ -1,27 +1,24 @@
-import { useEffect, useMemo, useState } from 'react';
-import { articles, articleTags } from '../data/articles';
-import useLiveArticles, { FEED_TAGS } from '../hooks/useLiveArticles';
+import { useMemo, useState } from 'react';
+import { articles } from '../data/articles';
 import {
     ChevronLeft, ChevronRight, Eye, Images, NotebookPen, X,
-    Search, RefreshCw, Radio, Clock, MessageCircle, Heart, ArrowLeft, Rss
+    Search, Clock, ArrowLeft
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 const PER_PAGE = 6;
+
+// Urutan bulan Indonesia untuk mengurutkan artikel dari yang terbaru
+const MONTHS = {
+    Januari: 0, Februari: 1, Maret: 2, April: 3, Mei: 4, Juni: 5,
+    Juli: 6, Agustus: 7, September: 8, Oktober: 9, November: 10, Desember: 11,
+};
 
 const buttonBase = 'px-5 py-2 rounded-xl text-sm font-bold transition-all cursor-pointer inline-flex items-center gap-1.5';
 const tabActive = 'bg-primary text-white shadow-md';
 const tabIdle = 'bg-surface-2 dark:bg-gray-800 text-ink-2 dark:text-gray-300 hover:bg-surface-3 dark:hover:bg-gray-700';
 
 const paginationBtn = 'p-2.5 rounded-xl bg-surface dark:bg-[#1E1E20] border border-line dark:border-gray-800 disabled:opacity-40 disabled:cursor-not-allowed hover:bg-surface-2 dark:hover:bg-gray-800 cursor-pointer';
-
-function formatTime(epoch, now = Date.now()) {
-    if (!epoch) return null;
-    const diff = Math.floor((now - epoch) / 1000);
-    if (diff < 60) return 'baru saja';
-    if (diff < 3600) return `${Math.floor(diff / 60)} menit lalu`;
-    return `${Math.floor(diff / 3600)} jam lalu`;
-}
 
 // Viewer artikel: p, h, code, list
 function ArticleBody({ content }) {
@@ -66,16 +63,12 @@ function ArticleBody({ content }) {
 }
 
 export default function Blog() {
-    const [activeTab, setActiveTab] = useState('mine'); // 'mine' | 'feed' | 'gallery'
+    const [activeTab, setActiveTab] = useState('mine'); // 'mine' | 'gallery'
     const [articlePage, setArticlePage] = useState(1);
     const [galleryPage, setGalleryPage] = useState(1);
     const [selectedImage, setSelectedImage] = useState(null);
     const [reading, setReading] = useState(null);
-    const [tag, setTag] = useState('Semua');
     const [query, setQuery] = useState('');
-    const [feedTag, setFeedTag] = useState(FEED_TAGS[0]);
-
-    const { articles: feed, status, error, updatedAt, live, refresh } = useLiveArticles(feedTag);
 
     const galleryItems = [
         {
@@ -101,14 +94,6 @@ export default function Blog() {
         }
     ];
 
-    // Waktu relatif perlu dihitung ulang tiap menit, jadi simpan clock lokal
-    const [now, setNow] = useState(() => Date.now());
-    useEffect(() => {
-        const id = setInterval(() => setNow(Date.now()), 60_000);
-        return () => clearInterval(id);
-    }, []);
-    const lastSync = updatedAt ? formatTime(updatedAt, now) : null;
-
     // Pagination direset lewat handler, bukan efek, agar tidak cascading render.
     const switchTab = (next) => {
         setActiveTab(next);
@@ -117,21 +102,22 @@ export default function Blog() {
         setReading(null);
         window.scrollTo({ top: 0, behavior: 'smooth' });
     };
-    const setFilterTag = (next) => { setTag(next); setArticlePage(1); };
     const setSearch = (next) => { setQuery(next); setArticlePage(1); };
-    const setFeed = (next) => { setFeedTag(next); };
 
     const filteredArticles = useMemo(() => {
         const q = query.trim().toLowerCase();
-        return articles.filter((a) => {
-            const matchTag = tag === 'Semua' || (a.tags || []).includes(tag);
-            const matchQuery = !q
-                || a.title.toLowerCase().includes(q)
+        const list = q
+            ? articles.filter((a) =>
+                a.title.toLowerCase().includes(q)
                 || a.summary.toLowerCase().includes(q)
-                || (a.tags || []).some((t) => t.toLowerCase().includes(q));
-            return matchTag && matchQuery;
-        });
-    }, [tag, query]);
+                || (a.tags || []).some((t) => t.toLowerCase().includes(q))
+            )
+            : articles;
+        // Terbaru ke terlama; urutan array sebagai pemutus saat tanggal sama
+        return [...list].sort((a, b) => MONTHS[b.date.split(' ')[1]] - MONTHS[a.date.split(' ')[1]]);
+    }, [query]);
+
+    const newestId = filteredArticles[0]?.id;
 
     const totalArticlePages = Math.max(1, Math.ceil(filteredArticles.length / PER_PAGE));
     const currentArticles = filteredArticles.slice((articlePage - 1) * PER_PAGE, articlePage * PER_PAGE);
@@ -143,7 +129,7 @@ export default function Blog() {
         <div className="max-w-5xl mx-auto px-6 py-12">
             <h1 className="text-3xl font-black mb-2 text-ink dark:text-white">Tech Journal & Gallery</h1>
             <p className="text-ink-2 dark:text-gray-300 mb-8 text-sm">
-                Artikel tulis sendiri, feed teknologi real-time dari dev.to, plus galeri visual.
+                Artikel tulis sendiri tentang pengembangan perangkat lunak, plus galeri visual.
             </p>
 
             {/* Navigasi tab utama */}
@@ -157,14 +143,6 @@ export default function Blog() {
                     Artikel Saya ({articles.length})
                 </button>
                 <button
-                    onClick={() => switchTab('feed')}
-                    className={`${buttonBase} ${activeTab === 'feed' ? tabActive : tabIdle}`}
-                    aria-pressed={activeTab === 'feed'}
-                >
-                    <Rss className="w-4 h-4 shrink-0" aria-hidden="true" />
-                    Live Feed ({feed.length})
-                </button>
-                <button
                     onClick={() => switchTab('gallery')}
                     className={`${buttonBase} ${activeTab === 'gallery' ? tabActive : tabIdle}`}
                     aria-pressed={activeTab === 'gallery'}
@@ -176,23 +154,8 @@ export default function Blog() {
 
             {activeTab === 'mine' && (
                 <>
-                    <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
-                        <div className="flex flex-wrap gap-2">
-                            {articleTags.map((t) => (
-                                <button
-                                    key={t}
-                                    onClick={() => setFilterTag(t)}
-                                    className={`px-3.5 py-1.5 rounded-full text-xs font-bold transition-all cursor-pointer ${
-                                        tag === t
-                                            ? 'bg-primary text-white shadow-md'
-                                            : 'bg-surface-2 dark:bg-gray-800 text-ink-2 dark:text-gray-300 hover:bg-surface-3 dark:hover:bg-gray-700'
-                                    }`}
-                                >
-                                    {t}
-                                </button>
-                            ))}
-                        </div>
-                        <div className="relative w-full md:w-64">
+                    <div className="flex justify-end mb-8">
+                        <div className="relative w-full md:w-72">
                             <Search className="w-4 h-4 text-ink-3 absolute left-3 top-1/2 -translate-y-1/2" />
                             <input
                                 type="text"
@@ -221,6 +184,11 @@ export default function Blog() {
                                     ))}
                                 </div>
                                 <div className="flex items-center gap-3 text-xs text-ink-3 dark:text-gray-400 mb-2">
+                                    {blog.id === newestId && (
+                                        <span className="px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-success-solid text-white">
+                                            Terbaru
+                                        </span>
+                                    )}
                                     <span>{blog.date}</span>
                                     <span>•</span>
                                     <span className="inline-flex items-center gap-1"><Clock className="w-3 h-3" />{blog.readTime}</span>
@@ -272,114 +240,6 @@ export default function Blog() {
                         )}
                     </div>
                 </>
-            )}
-
-            {activeTab === 'feed' && (
-                <div>
-                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
-                        <div className="flex flex-wrap gap-2">
-                            {FEED_TAGS.map((t) => (
-                                <button
-                                    key={t}
-                                    onClick={() => setFeed(t)}
-                                    className={`px-3.5 py-1.5 rounded-full text-xs font-bold transition-all cursor-pointer capitalize ${
-                                        feedTag === t
-                                            ? 'bg-primary text-white shadow-md'
-                                            : 'bg-surface-2 dark:bg-gray-800 text-ink-2 dark:text-gray-300 hover:bg-surface-3 dark:hover:bg-gray-700'
-                                    }`}
-                                >
-                                    #{t}
-                                </button>
-                            ))}
-                        </div>
-                        <button
-                            onClick={refresh}
-                            disabled={live}
-                            className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-surface-2 dark:bg-gray-800 text-ink-2 dark:text-gray-300 text-xs font-bold border border-line dark:border-gray-700 hover:bg-surface-3 dark:hover:bg-gray-700 transition-all cursor-pointer disabled:opacity-60 self-start"
-                        >
-                            <RefreshCw className={`w-3.5 h-3.5 ${live ? 'animate-spin' : ''}`} />
-                            {live ? 'Memuat...' : 'Segarkan'}
-                        </button>
-                    </div>
-
-                    <div className="flex items-center gap-3 mb-6 text-xs text-ink-3 dark:text-gray-400">
-                        <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full font-bold ${
-                            status === 'ready'
-                                ? 'bg-green-100 text-green-700 dark:bg-green-950/40 dark:text-green-400'
-                                : status === 'stale'
-                                    ? 'bg-yellow-100 text-yellow-700 dark:bg-yellow-950/40 dark:text-yellow-400'
-                                    : status === 'error'
-                                        ? 'bg-red-100 text-red-700 dark:bg-red-950/40 dark:text-red-400'
-                                        : 'bg-surface-2 dark:bg-gray-800 text-ink-3'
-                        }`}>
-                            <Radio className="w-3 h-3" />
-                            {status === 'ready' && 'Live'}
-                            {status === 'stale' && 'Cache'}
-                            {status === 'loading' && 'Memuat...'}
-                            {status === 'error' && 'Gagal'}
-                        </span>
-                        {lastSync && <span>diperbarui {lastSync}</span>}
-                        {error && <span className="text-red-500">{error}</span>}
-                    </div>
-
-                    {feed.length > 0 ? (
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            {feed.map((item) => (
-                                <motion.article
-                                    key={item.id}
-                                    initial={{ opacity: 0, y: 10 }}
-                                    animate={{ opacity: 1, y: 0 }}
-                                    className="flex flex-col bg-surface dark:bg-[#1A1A1C] border border-line dark:border-gray-800 rounded-2xl shadow-sm hover:shadow-md transition-shadow overflow-hidden"
-                                >
-                                    {item.image && (
-                                        <img src={item.image} alt="" loading="lazy" className="h-36 w-full object-cover" />
-                                    )}
-                                    <div className="p-5 flex flex-col flex-1">
-                                        <div className="flex items-center gap-2 text-xs text-ink-3 dark:text-gray-400 mb-2">
-                                            {item.avatar && <img src={item.avatar} alt="" className="w-5 h-5 rounded-full" />}
-                                            <a href={item.authorUrl} target="_blank" rel="noopener noreferrer" className="font-semibold hover:text-accent truncate">
-                                                {item.author}
-                                            </a>
-                                            <span>•</span>
-                                            <span>{item.date}</span>
-                                        </div>
-                                        <a
-                                            href={item.url}
-                                            target="_blank"
-                                            rel="noopener noreferrer"
-                                            className="text-base font-bold text-ink dark:text-white hover:text-accent dark:hover:text-[#8AB4F8] transition-colors leading-snug"
-                                        >
-                                            {item.title}
-                                        </a>
-                                        <p className="mt-2 text-xs text-ink-2 dark:text-gray-400 leading-relaxed line-clamp-3 flex-1">
-                                            {item.summary}
-                                        </p>
-                                        <div className="mt-4 flex flex-wrap gap-1.5">
-                                            {item.tags.map((t) => (
-                                                <span key={t} className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-surface-2 dark:bg-gray-800 text-ink-2 dark:text-gray-300">
-                                                    #{t}
-                                                </span>
-                                            ))}
-                                        </div>
-                                        <div className="mt-4 flex items-center gap-4 text-[11px] text-ink-3 dark:text-gray-400">
-                                            <span className="inline-flex items-center gap-1"><Heart className="w-3.5 h-3.5" />{item.reactions}</span>
-                                            <span className="inline-flex items-center gap-1"><MessageCircle className="w-3.5 h-3.5" />{item.comments}</span>
-                                            {item.readTime && <span className="inline-flex items-center gap-1"><Clock className="w-3.5 h-3.5" />{item.readTime}</span>}
-                                        </div>
-                                    </div>
-                                </motion.article>
-                            ))}
-                        </div>
-                    ) : (
-                        <div className="py-12 text-center text-sm text-ink-3">
-                            {status === 'loading'
-                                ? 'Mengambil artikel terbaru...'
-                                : status === 'error'
-                                    ? 'Tidak bisa memuat feed. Periksa koneksi lalu tekan Segarkan.'
-                                    : 'Belum ada artikel.'}
-                        </div>
-                    )}
-                </div>
             )}
 
             {activeTab === 'gallery' && (

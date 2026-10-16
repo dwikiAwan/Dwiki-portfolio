@@ -48,8 +48,7 @@ export default function LiveComment() {
     }
 
     return (
-        // Di layar sempit panel chat melebar sampai hampir tepi kiri, jadi ia
-        // diangkat keluar dari baris tombol CLI (yang tetap bisa diklik).
+        // Di layar sempit panel chat melebar sampai hampir tepi kiri, jadi ia iangkat keluar dari baris tombol CLI (yang tetap bisa diklik).
         <div className={`fixed bottom-[5.25rem] right-4 sm:bottom-6 sm:right-6 z-50 p-[2px] rounded-[22px] max-w-[calc(100vw-2rem)] sm:max-w-[calc(100vw-3rem)] ${BORDER}`}>
             <motion.div
                 initial={{ opacity: 0, scale: 0.9, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }}

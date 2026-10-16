@@ -1,8 +1,5 @@
 /**
  * Executor perintah: menyatukan parser, registry perintah, dan pipeline.
- *
- * `runLine(input, ctx)` adalah satu-satunya fungsi yang dipanggil komponen
- * terminal. Semua logika parsing dan pipeline ada di sini, bukan di komponen.
  */
 
 import { tokenize, splitPipeline, PREFIXES } from './engine';
@@ -34,7 +31,6 @@ function runSegment(segment, ctx, stdin = null) {
         return {
             ...result,
             // out selalu string: perintah boleh mengembalikan array/objek,
-            // komponen terminal tidak boleh ikut memikul penerjemahan itu.
             out: String(result.out ?? ''),
             tone: result.tone || 'ok',
             command: cmd.name,
@@ -50,8 +46,6 @@ function runSegment(segment, ctx, stdin = null) {
 
 /**
  * Jalankan satu baris input, termasuk pipeline.
- * ctx harus menyediakan: navigate, setTheme, toggleTheme, history, resetHistory,
- * guestbook, openUrl, closeTerminal.
  */
 export function runLine(input, ctx) {
     const segments = splitPipeline(input);
