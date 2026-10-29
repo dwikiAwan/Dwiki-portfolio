@@ -104,8 +104,10 @@ export default function useGuestbook() {
             return null;
         } catch (err) {
             console.error('Guestbook:', err);
+            // permission-denied = rules yang aktif tidak mengizinkan, bukan kuota habis
+            // (kuota sudah dicek di atas dari guestbookQuota).
             if (err.code === 'permission-denied') {
-                return 'Kuota pesan harian sudah habis. Coba lagi nanti.';
+                return 'Pesan ditolak aturan keamanan. Coba lagi nanti.';
             }
             return 'Gagal mengirim pesan. Coba lagi nanti.';
         }
