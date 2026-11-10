@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { portfolioData } from '../data/portfoliodata';
-import profileImg from '../assets/profile.jpg';
+import profileImg from '../assets/profile.webp';
 import DecryptText from './reactbits/DecryptText';
 import { FileText, Download, User } from 'lucide-react';
 

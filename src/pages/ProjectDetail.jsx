@@ -56,22 +56,17 @@ export default function ProjectDetail() {
                 </p>
             </div>
 
-            {/* Galeri Screenshot: 3 foto per proyek */}
+            {/* Galeri Screenshot: 1 foto per proyek */}
             {project.images?.length > 0 && (
-                <div className="mb-10 grid grid-cols-1 sm:grid-cols-2 gap-6">
-                    {project.images.map((img, i) => (
-                        <figure
-                            key={img}
-                            className={`overflow-hidden rounded-[2rem] border border-line dark:border-gray-800 bg-surface/90 dark:bg-[#1E1E20]/90 shadow-sm ${i === 0 ? 'sm:col-span-2' : ''}`}
-                        >
-                            <img
-                                src={img}
-                                alt={`${project.title} - tangkapan layar ${i + 1}`}
-                                loading="lazy"
-                                className="w-full aspect-[16/10] object-cover"
-                            />
-                        </figure>
-                    ))}
+                <div className="mb-10">
+                    <figure className="overflow-hidden rounded-[2rem] border border-line dark:border-gray-800 bg-surface/90 dark:bg-[#1E1E20]/90 shadow-sm">
+                        <img
+                            src={project.images[0]}
+                            alt={`${project.title} - tangkapan layar 1`}
+                            loading="lazy"
+                            className="w-full aspect-[16/10] object-cover"
+                        />
+                    </figure>
                 </div>
             )}
 

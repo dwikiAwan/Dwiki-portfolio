@@ -9,12 +9,12 @@ export default function AcademicTab({ portfolioData }) {
                 {/* Kartu Skripsi */}
                 <motion.div
                     whileHover={{ y: -5 }}
-                    className="relative rounded-[2.5rem] p-[2px] bg-[linear-gradient(to_bottom_right,#EA4335,#FBBC05,#34A853,#4285F4)] shadow-lg flex flex-col"
+                    className="relative rounded-[2.5rem] p-[2px] bg-[linear-gradient(to_bottom_right,#4285F4,#34A853,#FBBC05,#EA4335)] shadow-lg flex flex-col"
                 >
                     <div className="bg-surface dark:bg-[#1E1E20] rounded-[calc(2.5rem-2px)] p-8 md:p-10 flex flex-col justify-between h-full transition-colors duration-300">
                         <div>
                             <div className="flex items-center justify-between mb-4">
-                                <span className="text-xs font-bold text-danger-ink bg-danger-wash dark:bg-red-950/40 border border-danger-line dark:border-red-900 px-3.5 py-1.5 rounded-full">
+                                <span className="text-xs font-bold text-warn-ink bg-warn-wash dark:bg-yellow-950/40 border border-warn-line dark:border-yellow-900 px-3.5 py-1.5 rounded-full">
                                     S1 Thesis / Tugas Akhir
                                 </span>
                                 <span className="text-xs font-semibold text-success-ink bg-success-wash dark:bg-green-950/40 border border-success-line dark:border-green-900 px-3 py-1 rounded-md">
@@ -69,7 +69,7 @@ export default function AcademicTab({ portfolioData }) {
                                 Lencana & Kredensial
                             </h3>
 
-                            <div className="space-y-4 mb-6">
+                            <div className="max-h-[260px] overflow-y-auto pr-2 space-y-4 mb-6">
                                 {portfolioData.certifications.map((cert, index) => (
                                     <motion.a 
                                         key={index}
