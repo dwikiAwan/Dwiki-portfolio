@@ -8,9 +8,7 @@ import LiveComment from '../components/LiveComment'; //
 export default function Home() {
     return (
         <div className="flex flex-col space-y-12 md:space-y-20 relative">
-            <section className="min-h-[85vh] flex items-center justify-center">
-                <Hero />
-            </section>
+            <Hero />
             
             <section id="about" className="min-h-screen flex items-center justify-center">
                 <About />

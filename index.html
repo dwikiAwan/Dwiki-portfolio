@@ -39,7 +39,6 @@
 
     <!-- Performance: Preload critical assets -->
     <link rel="preload" as="image" type="image/webp" href="/profile-d.webp" />
-    <link rel="preload" as="style" href="/index.css" />
     <link rel="modulepreload" href="/src/main.jsx" />
 
     <!-- Resource hints -->
@@ -47,9 +46,6 @@
 
     <!-- Performance: Critical viewport meta -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-
-    <!-- HTTP/2 Server Push hints (via Link headers) -->
-    <meta http-equiv="Link" content='</assets/index.css>; rel=preload; as=style' />
   </head>
   <body>
     <div id="root"></div>

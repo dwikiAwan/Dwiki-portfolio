@@ -94,7 +94,7 @@ export default function About() {
 
                         <div className="space-y-3 text-sm md:text-base text-ink-2 dark:text-[#9AA0A6] leading-relaxed">
                             <p>
-                                Lulusan S1 Teknik Informatika yang saat ini aktif berkhidmah sebagai Staff LPTSI | UNIDA Gontor. Saya memiliki ketertarikan mendalam dan pengalaman praktis dalam membangun solusi digital modern yang efisien, aman, dan berpusat pada pengguna.
+                                Lulusan S1 Teknik Informatika dengan pengalaman 3 tahun sebagai IT Staff LPTSI UNIDA Gontor. Saya memiliki ketertarikan mendalam dan pengalaman praktis dalam membangun solusi digital modern yang efisien, aman, dan berpusat pada pengguna.
                             </p>
                             <p>
                                 Fokus keahlian saya mencakup pengembangan aplikasi berbasis web & mobile, perancangan infrastruktur cloud yang handal, hingga manajemen administrasi jaringan komputer skala institusi.

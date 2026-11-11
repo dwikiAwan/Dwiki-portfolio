@@ -82,15 +82,16 @@ export const portfolioData = {
         description: "Mempelajari dasar-dasar ilmu komputer, algoritma, pemrograman, dan pengembangan perangkat lunak"
     },
     {
-        period: "2025 - Sekarang",
-        title: "Pengembangan Portofolio & Profesional",
-        description: "Membangun portofolio proyek nyata, mengasah skill teknis, dan berkolaborasi dalam tim untuk menyiapkan karier profesional di bidang software engineering."
-    },
-    {
         period: "2023 - 2024",
         title: "Divisi Akademik",
-        institution: "HIMAFIT (Himpunan Mahasiswa Teknik Informatika)",
+        institution: "HIMATIF (Himpunan Mahasiswa Teknik Informatika)",
         description: "Mengelola urusan akademik himpunan: administrasi dan penjadwalan mata kuliah, koordinasi dengan dosen, serta program pendampingan belajar bagi mahasiswa Teknik Informatika."
+    },
+    {
+        period: "2023 - 2026",
+        title: "Staff LPTSI",
+        institution: "UNIDA Gontor",
+        description: "Menjadi staff Lembaga Pengembangan Teknologi dan Sistem Informasi (LPTSI) UNIDA Gontor, mengelola infrastruktur IT dan pengembangan sistem internal."
     },
     {
         period: "2024",
@@ -99,10 +100,10 @@ export const portfolioData = {
         description: "Mengikuti program Cloud Computing bersama Google Skills Boost dan mitra industri, mencakup provisioning infrastruktur, jaringan, keamanan cloud, hingga capstone project."
     },
     {
-        period: "2023 - 2026",
-        title: "Staff LPTSI",
-        institution: "UNIDA Gontor",
-        description: "Menjadi staff Lembaga Pengembangan Teknologi dan Sistem Informasi (LPTSI) UNIDA Gontor, mengelola infrastruktur IT dan pengembangan sistem internal."
+        period: "2025 - Sekarang",
+        title: "Pengembangan Portofolio & Profesional",
+        institution: "Pengembangan Diri",
+        description: "Membangun portofolio proyek nyata, mengasah skill teknis, dan berkolaborasi dalam tim untuk menyiapkan karier profesional di bidang software engineering."
     }
 ],
 

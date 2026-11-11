@@ -41,9 +41,8 @@ const GooeyNav = ({
   const navigate = useNavigate();
   const location = useLocation();
 
-  // Menentukan activeIndex secara langsung berdasarkan URL saat ini (Derived State)
-  const currentPath = location.pathname + location.hash;
-  const matchedIndex = items.findIndex(item => item.href === currentPath || (item.href === '/' && location.pathname === '/'));
+  // Menentukan activeIndex berdasarkan URL saat ini (Derived State)
+  const matchedIndex = items.findIndex(item => item.href === location.pathname + location.hash || (item.href === '/' && location.pathname === '/'));
   const activeIndex = matchedIndex !== -1 ? matchedIndex : initialActiveIndex;
 
   const makeParticles = element => {
