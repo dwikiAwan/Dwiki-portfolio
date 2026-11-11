@@ -1,0 +1,60 @@
+# Dependencies
+node_modules
+
+# Build outputs
+dist
+dist-ssr
+
+# Environment files
+.env
+.env.*
+!.env.example
+
+# IDE
+.vscode
+.idea
+*.swp
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Git
+.git
+.gitignore
+
+# Logs
+*.log
+npm-debug.log*
+
+# Vercel
+.vercel
+
+# Docker
+docker-compose.yml
+Dockerfile
+.dockerignore
+
+# Test
+coverage
+
+# Scripts
+*.py
+*.sh
+
+# Documentation
+README.md
+*.md
+
+# Source maps
+*.map
+
+# Original images (we serve WebP)
+*.jpg
+*.jpeg
+*.png
+!public/favicon-*.webp
+!public/apple-touch-icon.webp
+!public/icon-*.webp
+!public/profile-d.webp
+!src/assets/profile.webp

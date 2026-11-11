@@ -3,10 +3,10 @@
   <head>
     <meta name="strix-verification" content="strix-verify-1d513426d1f98ef3f55b079fb2afb597">
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/png" sizes="48x48" href="/favicon-48x48.png" />
-    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
-    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
-    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+    <link rel="icon" type="image/webp" sizes="48x48" href="/favicon-48x48.webp" />
+    <link rel="icon" type="image/webp" sizes="32x32" href="/favicon-32x32.webp" />
+    <link rel="icon" type="image/webp" sizes="16x16" href="/favicon-16x16.webp" />
+    <link rel="apple-touch-icon" type="image/webp" sizes="180x180" href="/apple-touch-icon.webp" />
     <link rel="manifest" href="/site.webmanifest" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="color-scheme" content="light dark" />
@@ -21,13 +21,50 @@
     <meta property="og:site_name" content="d'wick.port" />
     <meta property="og:url" content="https://dwiki-port.vercel.app/" />
     <meta property="og:title" content="Dwiki:Portal" />
-    <meta property="og:description" content="Website journey Dwiki Kurniawan: Sofware & Network Enthusiast." />
+    <meta property="og:description" content="Website journey Dwiki Kurniawan: Software & Network Enthusiast." />
     <meta name="twitter:card" content="summary" />
     <meta name="twitter:title" content="Dwiki:Portal" />
-    <meta name="twitter:description" content="Website journey Dwiki Kurniawan: Sofware & Network Enthusiast." />
+    <meta name="twitter:description" content="Website journey Dwiki Kurniawan: Software & Network Enthusiast." />
+
+    <!-- Performance: DNS Prefetch for external resources -->
+    <link rel="dns-prefetch" href="https://cdn.simpleicons.org" />
+    <link rel="dns-prefetch" href="https://images.unsplash.com" />
+    <link rel="dns-prefetch" href="https://dev.to" />
+    <link rel="dns-prefetch" href="https://firestore.googleapis.com" />
+    <link rel="dns-prefetch" href="https://cdn.simpleicons.org" />
+
+    <!-- Performance: Preconnect for critical origins -->
+    <link rel="preconnect" href="https://cdn.simpleicons.org" crossorigin />
+    <link rel="preconnect" href="https://firestore.googleapis.com" crossorigin />
+
+    <!-- Performance: Preload critical assets -->
+    <link rel="preload" as="image" type="image/webp" href="/profile-d.webp" />
+    <link rel="preload" as="style" href="/index.css" />
+    <link rel="modulepreload" href="/src/main.jsx" />
+
+    <!-- Resource hints -->
+    <link rel="prefetch" href="/assets/index.css" />
+
+    <!-- Performance: Critical viewport meta -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+
+    <!-- HTTP/2 Server Push hints (via Link headers) -->
+    <meta http-equiv="Link" content='</assets/index.css>; rel=preload; as=style' />
   </head>
   <body>
     <div id="root"></div>
     <script type="module" src="/src/main.jsx"></script>
+
+    <!-- Performance: Non-critical scripts deferred -->
+    <script>
+      // Service Worker for caching
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', function() {
+          navigator.serviceWorker.register('/sw.js').catch(function(err) {
+            console.log('SW registration failed:', err);
+          });
+        });
+      }
+    </script>
   </body>
 </html>

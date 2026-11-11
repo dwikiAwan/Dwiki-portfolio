@@ -16,7 +16,7 @@ service cloud.firestore {
         && request.resource.data.message is string
         && request.resource.data.message.trim().size() > 0
         && request.resource.data.message.size() <= 250
-        && request.resource.data.avatar in ['code', 'bot', 'rocket', 'shield', 'terminal']
+        && request.resource.data.avatar in ['code', 'bot', 'hatglasses', 'rocket', 'shield', 'terminal']
         && request.resource.data.createdAt == request.time
         && request.resource.data.reactions.keys().hasOnly(['fire', 'like', 'lightning'])
        
